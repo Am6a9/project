@@ -12,3 +12,6 @@ Desktop.ini
 .env
 credentials.json
 token.json
+
+# Local Netlify folder
+.netlify
