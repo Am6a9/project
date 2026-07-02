@@ -285,23 +285,123 @@
   ::-webkit-scrollbar-thumb{background:#c7cede;border-radius:8px;border:3px solid transparent;background-clip:content-box}
   ::-webkit-scrollbar-thumb:hover{background:#aab3ca;background-clip:content-box}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+  /* ============================================================
+     Иконки в меню + стеклянная страница входа (стиль sign-in-card)
+     ============================================================ */
+  .nav .ico{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px}
+  .nav .ico svg{width:19px;height:19px}
+  .brand .ico svg{width:20px;height:20px}
+  .ibtn{display:inline-flex;align-items:center;gap:8px}
+  .iic{width:16px;height:16px;flex:none}
+
+  /* База рейтинга */
+  input.grade{width:74px;text-align:center;font-weight:600;padding:7px 6px;border:1px solid var(--line-strong);border-radius:8px;background:#fbfcff;font-family:inherit;font-size:13px;transition:border-color .16s,box-shadow .16s}
+  input.grade:focus{outline:none;border-color:var(--violet-l);box-shadow:var(--ring)}
+  input.grade::-webkit-outer-spin-button,input.grade::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  td.total{text-align:center;font-weight:800;font-size:15px;color:var(--muted)}
+  td.total.tot-ok{color:var(--green)}
+  td.total.tot-bad{color:var(--red);background:rgba(220,38,38,.05)}
+
+  .login-scr{
+    background:
+      radial-gradient(60vw 42vh at 50% -6%, rgba(167,139,250,.45), transparent 60%),
+      linear-gradient(180deg, rgba(139,92,246,.42), rgba(76,29,149,.55) 45%, #05030a 100%);
+  }
+  .lg-noise{position:absolute;inset:0;opacity:.045;mix-blend-mode:soft-light;pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:200px 200px}
+  .lg-glow{position:absolute;left:50%;transform:translateX(-50%);border-radius:50%;filter:blur(70px);pointer-events:none}
+  .glow-a{top:-12vh;width:120vh;height:60vh;background:rgba(167,139,250,.22);animation:glowPulse 8s ease-in-out infinite}
+  .glow-b{bottom:-32vh;width:92vh;height:92vh;background:rgba(139,92,246,.22);animation:glowPulse 6s ease-in-out infinite 1s}
+  @keyframes glowPulse{0%,100%{opacity:.18;transform:translateX(-50%) scale(.98)}50%{opacity:.4;transform:translateX(-50%) scale(1.05)}}
+  .lg-spot{position:absolute;width:24rem;height:24rem;border-radius:50%;background:rgba(255,255,255,.05);filter:blur(90px);opacity:.4;pointer-events:none}
+  .spot-a{left:22%;top:22%;animation:glowPulse 5s ease-in-out infinite}
+  .spot-b{right:22%;bottom:22%;animation:glowPulse 5s ease-in-out infinite 1.2s}
+
+  .login-card{position:relative;width:404px;max-width:100%;background:transparent;box-shadow:none;border-radius:20px;padding:1px;z-index:2;overflow:visible;animation:modalIn .25s ease-out}
+  .lc-inner{position:relative;background:rgba(10,8,18,.55);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:28px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+  .lc-inner::before{content:"";position:absolute;inset:0;opacity:.03;pointer-events:none;
+    background-image:linear-gradient(135deg,#fff .5px,transparent .5px),linear-gradient(45deg,#fff .5px,transparent .5px);background-size:30px 30px}
+
+  .beam{position:absolute;pointer-events:none;z-index:3}
+  .beam-t{top:0;left:0;height:2px;width:50%;background:linear-gradient(90deg,transparent,#fff,transparent);filter:blur(1px);animation:beamX 3.5s linear infinite}
+  .beam-b{bottom:0;right:0;height:2px;width:50%;background:linear-gradient(90deg,transparent,#fff,transparent);filter:blur(1px);animation:beamXr 3.5s linear infinite 1.75s}
+  .beam-l{bottom:0;left:0;width:2px;height:50%;background:linear-gradient(180deg,transparent,#fff,transparent);filter:blur(1px);animation:beamYu 3.5s linear infinite 2.6s}
+  .beam-r{top:0;right:0;width:2px;height:50%;background:linear-gradient(180deg,transparent,#fff,transparent);filter:blur(1px);animation:beamY 3.5s linear infinite .9s}
+  @keyframes beamX{0%{left:-50%;opacity:.2}50%{opacity:.7}100%{left:100%;opacity:.2}}
+  @keyframes beamXr{0%{right:-50%;opacity:.2}50%{opacity:.7}100%{right:100%;opacity:.2}}
+  @keyframes beamY{0%{top:-50%;opacity:.2}50%{opacity:.7}100%{top:100%;opacity:.2}}
+  @keyframes beamYu{0%{bottom:-50%;opacity:.2}50%{opacity:.7}100%{bottom:100%;opacity:.2}}
+
+  .lc-head{text-align:center;margin-bottom:20px}
+  .login-card .lc-head .logo{width:46px;height:46px;margin:0 auto 14px;border-radius:50%;border:1px solid rgba(255,255,255,.12);
+    background:linear-gradient(135deg,rgba(255,255,255,.16),transparent);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 8px 22px rgba(124,58,237,.4)}
+  .login-card .lc-head .logo svg{width:22px;height:22px}
+  .login-card h2{color:#fff;font-size:21px;font-weight:800;margin:0}
+  .login-card .sub,.login-card p.sub{color:rgba(255,255,255,.6);font-size:12.5px;margin:5px 0 0}
+
+  .login-err{background:rgba(220,38,38,.16);border:1px solid rgba(248,113,113,.4);color:#fecaca}
+  .lg-field{position:relative;display:flex;align-items:center;margin-bottom:12px;border-radius:11px}
+  .lg-ic{position:absolute;left:12px;display:flex;color:rgba(255,255,255,.4);transition:color .2s;z-index:2}
+  .lg-ic svg{width:17px;height:17px}
+  .lg-field input{width:100%;height:44px;padding:0 42px;border-radius:11px;border:1px solid rgba(255,255,255,.08);
+    background:rgba(255,255,255,.05);color:#fff;font-size:14px;transition:background .2s,border-color .2s,box-shadow .2s;font-family:inherit}
+  .lg-field input::placeholder{color:rgba(255,255,255,.32)}
+  .lg-field input:focus{outline:none;background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.22);box-shadow:0 0 0 3px rgba(255,255,255,.06)}
+  .lg-field:focus-within .lg-ic{color:#fff}
+  .lg-eye{position:absolute;right:10px;background:none;border:0;padding:5px;color:rgba(255,255,255,.4);cursor:pointer;display:flex;z-index:2}
+  .lg-eye:hover{color:#fff}
+  .lg-eye svg{width:17px;height:17px}
+
+  .login-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:7px;height:44px;border-radius:11px;margin-top:6px;
+    background:#fff;color:#111;font-weight:700;box-shadow:0 10px 24px rgba(0,0,0,.35);transition:transform .15s,box-shadow .2s}
+  .login-btn svg{width:15px;height:15px;transition:transform .2s}
+  .login-btn:hover{background:#fff;filter:none;transform:translateY(-1px);box-shadow:0 14px 30px rgba(0,0,0,.45)}
+  .login-btn:hover svg{transform:translateX(3px)}
+  .demo-note{margin-top:16px;color:rgba(255,255,255,.58);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)}
+  .demo-note code{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);color:#fff}
 </style>
 </head>
 <body>
   <!-- Экран авторизации (закрытый вход, учётки только для Замов) -->
   <div class="login-scr" id="loginScreen">
+    <div class="lg-noise"></div>
+    <div class="lg-glow glow-a"></div>
+    <div class="lg-glow glow-b"></div>
+    <div class="lg-spot spot-a"></div>
+    <div class="lg-spot spot-b"></div>
+
     <div class="login-card">
-      <div class="lc-head">
-        <div class="logo">А</div>
-        <h2>АИС «Академия ТОП»</h2>
-        <p class="sub">Учёт успеваемости · вход в консоль Заместителя</p>
-      </div>
-      <div class="lc-body">
-        <div class="login-err" id="loginErr"></div>
-        <div class="field"><label>Логин</label><input id="loginUser" autocomplete="username" placeholder="Введите логин"></div>
-        <div class="field"><label>Пароль</label><input id="loginPass" type="password" autocomplete="current-password" placeholder="Введите пароль"></div>
-        <button class="login-btn" id="loginBtn">Войти в систему</button>
-        <div class="demo-note" id="demoNote"></div>
+      <span class="beam beam-t"></span><span class="beam beam-r"></span>
+      <span class="beam beam-b"></span><span class="beam beam-l"></span>
+      <div class="lc-inner">
+        <div class="lc-head">
+          <div class="logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.42 10.92a1 1 0 0 0 0-1.84L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.83l8.57 3.91a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg>
+          </div>
+          <h2>Добро пожаловать</h2>
+          <p class="sub">Вход в консоль Заместителя · АИС «Академия ТОП»</p>
+        </div>
+        <div class="lc-body">
+          <div class="login-err" id="loginErr"></div>
+          <div class="lg-field">
+            <span class="lg-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+            <input id="loginUser" autocomplete="username" placeholder="Логин">
+          </div>
+          <div class="lg-field">
+            <span class="lg-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+            <input id="loginPass" type="password" autocomplete="current-password" placeholder="Пароль">
+            <button type="button" class="lg-eye" id="eyeBtn" aria-label="Показать пароль">
+              <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.73 5.08A10.74 10.74 0 0 1 21.94 11.65a1 1 0 0 1 0 .7 10.75 10.75 0 0 1-1.44 2.49"/><path d="M14.08 14.16a3 3 0 0 1-4.24-4.24"/><path d="M17.48 17.5A10.75 10.75 0 0 1 2.06 12.35a1 1 0 0 1 0-.7 10.75 10.75 0 0 1 4.45-5.14"/><path d="m2 2 20 20"/></svg>
+              <svg class="eye-on" style="display:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.06 12.35a1 1 0 0 1 0-.7 10.75 10.75 0 0 1 19.88 0 1 1 0 0 1 0 .7 10.75 10.75 0 0 1-19.88 0"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <button class="login-btn" id="loginBtn">
+            <span>Войти в систему</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+          <div class="demo-note" id="demoNote"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -309,13 +409,13 @@
   <aside class="side">
     <div class="brand">АИС «Академия ТОП»<small>Учёт успеваемости · Консоль Зама</small></div>
     <nav class="nav" id="nav">
-      <button data-tab="dashboard"><span class="ico">▦</span> Дашборд</button>
-      <button data-tab="schedule" class="active"><span class="ico">🗓</span> Генератор расписания</button>
-      <button data-tab="teachers"><span class="ico">👤</span> Преподаватели</button>
-      <button data-tab="groups"><span class="ico">🎓</span> Группы и нагрузка</button>
-      <button data-tab="disciplines"><span class="ico">📚</span> Дисциплины</button>
-      <button data-tab="rating"><span class="ico">📊</span> База рейтинга</button>
-      <button data-tab="profile"><span class="ico">⚙</span> Профиль Зама</button>
+      <button data-tab="dashboard"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span> Дашборд</button>
+      <button data-tab="schedule" class="active"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg></span> Генератор расписания</button>
+      <button data-tab="teachers"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span> Преподаватели</button>
+      <button data-tab="groups"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.42 10.92a1 1 0 0 0 0-1.84L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.83l8.57 3.91a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg></span> Группы и нагрузка</button>
+      <button data-tab="disciplines"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg></span> Дисциплины</button>
+      <button data-tab="rating"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg></span> База рейтинга</button>
+      <button data-tab="profile"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></span> Профиль Зама</button>
     </nav>
     <div class="user-badge" id="userBadge"></div>
     <div class="side-foot" id="sideFoot"></div>
@@ -359,6 +459,15 @@ const SLOTS = [
 const MAX_PAIRS_PER_DAY = 4;           // ТЗ: не более 4 пар / 8 ак.часов в день на группу
 const LESSON_COLORS = ['#5b3fb5','#2563eb','#0891b2','#16a34a','#b45309','#be185d','#4338ca','#0f766e','#9333ea','#c2410c'];
 
+// Инлайн SVG-иконки (стиль lucide) вместо эмодзи
+const _s = 'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
+const SVG = {
+  gen:   `<svg class="iic" viewBox="0 0 24 24" ${_s}><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/><path d="M5 3v4M3 5h4"/></svg>`,
+  check: `<svg class="iic" viewBox="0 0 24 24" ${_s}><path d="M20 6 9 17l-5-5"/></svg>`,
+  alert: `<svg class="iic" viewBox="0 0 24 24" ${_s}><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3z"/><path d="M12 9v4M12 17h.01"/></svg>`,
+  info:  `<svg class="iic" viewBox="0 0 24 24" ${_s}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>`,
+};
+
 /* ---------- Хранилище ---------- */
 const LS_KEY = 'ais_schedule_v1';
 let DB = load();
@@ -379,6 +488,8 @@ function migrate(db){
     ];
   }
   if(!db.auditLog) db.auditLog = [];
+  if(!db.scores) db.scores = {};
+  if(db.ratingThreshold==null) db.ratingThreshold = 60;
   return db;
 }
 function save(){ localStorage.setItem(LS_KEY, JSON.stringify(DB)); renderFoot(); }
@@ -436,8 +547,17 @@ function seed(){
     {id:'u2', login:'admin',  name:'Орлов К.В.',    role:'Ст. заместитель',    pass:hashPass('admin123'), active:true},
   ];
 
+  // Демо-баллы для наглядной подсветки (группа РПО-21, Программирование)
+  const scores = {
+    'g1|d1':{
+      'Иванов И.':{att:90, kr:75, dz:80},
+      'Петров П.':{att:40, kr:35, dz:30},
+      'Сидорова А.':{att:100, kr:88, dz:92},
+    }
+  };
+
   return {teachers, disciplines, groups, placements:[], users, auditLog:[],
-          period:'Неделя', lastBackup:new Date().toISOString()};
+          scores, ratingThreshold:60, period:'Неделя', lastBackup:new Date().toISOString()};
 }
 
 /* ---------- Авторизация ---------- */
@@ -651,6 +771,7 @@ function detectConflicts(){
    ===================================================================== */
 let TAB = 'schedule';
 let currentGroupView = null;
+let ratingGroup = null, ratingDisc = null, ratingDebtorsOnly = false, ratingDate = new Date().toISOString().slice(0,10);
 
 function renderFoot(){
   const backup = DB.lastBackup ? new Date(DB.lastBackup).toLocaleString('ru-RU') : '—';
@@ -700,13 +821,145 @@ function viewDashboard(){
   </div></div>`;
 }
 
-/* ---------- База рейтинга (заглушка модуля) ---------- */
+/* ---------- БАЗА РЕЙТИНГА (массовый ввод баллов) ---------- */
+const RK = (g,d)=> g+'|'+d;
+function ratingRec(g,d,student){
+  const k=RK(g,d); const rec = DB.scores[k] && DB.scores[k][student];
+  return rec ? {att:rec.att??'', kr:rec.kr??'', dz:rec.dz??''} : {att:'',kr:'',dz:''};
+}
+function ratingTotal(rec){
+  const a=rec.att, k=rec.kr, d=rec.dz;
+  if(a===''&&k===''&&d==='') return null;              // нет данных
+  const na=+a||0, nk=+k||0, nd=+d||0;
+  return Math.round(na*0.3 + nk*0.35 + nd*0.35);        // взвешенный итог
+}
+function groupDisciplines(g){
+  const grp=G(g); if(!grp) return [];
+  const ids=[...new Set((grp.load||[]).map(l=>l.disciplineId))];
+  return ids.length ? ids.map(D).filter(Boolean) : DB.disciplines;
+}
+function ratingTeacherName(g,d){
+  const grp=G(g); const l=(grp&&grp.load||[]).find(x=>x.disciplineId===d);
+  if(l){ const t=T(l.teacherId); if(t) return t.name; }
+  const disc=D(d); const t=disc&&disc.teacherIds[0]&&T(disc.teacherIds[0]);
+  return t?t.name:'—';
+}
+
 function viewRating(){
-  return `<div class="card"><div class="body placeholder">
-    <div class="big">Модуль «База рейтинга»</div>
-    Массовый ввод баллов (посещаемость / КР / ДЗ), генератор ведомостей и реестр пересдач.<br>
-    В рамках текущей задачи реализован интеллектуальный модуль <b>«Генератор расписания»</b>.
+  if(DB.groups.length===0) return `<div class="card"><div class="body empty">Нет групп. Сначала добавьте группы в разделе «Группы и нагрузка».</div></div>`;
+  if(!ratingGroup || !G(ratingGroup)) ratingGroup = DB.groups[0].id;
+  const discs = groupDisciplines(ratingGroup);
+  if(!ratingDisc || !discs.some(d=>d.id===ratingDisc)) ratingDisc = discs[0] ? discs[0].id : null;
+
+  const grp = G(ratingGroup);
+  const thr = DB.ratingThreshold;
+  const groupOpts = DB.groups.map(g=>`<option value="${g.id}" ${g.id===ratingGroup?'selected':''}>${g.name}</option>`).join('');
+  const discOpts = discs.map(d=>`<option value="${d.id}" ${d.id===ratingDisc?'selected':''}>${d.name}</option>`).join('') || '<option>— нет дисциплин —</option>';
+  const teacher = ratingDisc ? ratingTeacherName(ratingGroup, ratingDisc) : '—';
+
+  // строки студентов
+  const students = grp.students||[];
+  let filled=0, passed=0, debt=0, sum=0;
+  let rows = students.map((st,idx)=>{
+    const rec = ratingDisc ? ratingRec(ratingGroup, ratingDisc, st) : {att:'',kr:'',dz:''};
+    const total = ratingTotal(rec);
+    let statusHtml='<span class="chip">—</span>', rowHide='';
+    if(total!==null){
+      filled++; sum+=total;
+      if(total>=thr){ passed++; statusHtml=`<span class="chip" style="background:var(--soft);border-color:#b6e6c4;color:#14663a">Сдал</span>`; }
+      else { debt++; statusHtml=`<span class="chip" style="background:var(--hard);border-color:#f3bcbc;color:#9b1c1c">Долг</span>`; }
+    }
+    if(ratingDebtorsOnly && !(total!==null && total<thr)) rowHide='style="display:none"';
+    const totCls = total===null?'':(total>=thr?'tot-ok':'tot-bad');
+    return `<tr ${rowHide}>
+      <td style="text-align:center;color:var(--muted)">${idx+1}</td>
+      <td><b>${st}</b></td>
+      <td><input class="grade" type="number" min="0" max="100" value="${rec.att}" placeholder="—" onchange="setScore(${idx},'att',this.value)"></td>
+      <td><input class="grade" type="number" min="0" max="100" value="${rec.kr}" placeholder="—" onchange="setScore(${idx},'kr',this.value)"></td>
+      <td><input class="grade" type="number" min="0" max="100" value="${rec.dz}" placeholder="—" onchange="setScore(${idx},'dz',this.value)"></td>
+      <td class="total ${totCls}">${total===null?'—':total}</td>
+      <td>${statusHtml}</td>
+    </tr>`;
+  }).join('');
+  if(!students.length) rows = `<tr><td colspan="7" class="empty">В группе нет студентов. Добавьте их в карточке группы.</td></tr>`;
+
+  const avg = filled? Math.round(sum/filled) : 0;
+
+  return `
+  <h2 class="section">База рейтинга — массовый ввод баллов</h2>
+  <p class="hint">Выберите Группу + Дисциплину — система подтянет преподавателя и откроет таблицу студентов.
+   Проставляйте баллы за посещаемость, контрольные (КР) и домашние задания (ДЗ) — итог считается автоматически.
+   Задолжники подсвечиваются красным, сдавшие — зелёным. Все правки фиксируются в журнале действий.</p>
+
+  <div class="card"><div class="body">
+    <div class="sched-toolbar">
+      <div class="field" style="margin:0"><label>Группа</label>
+        <select onchange="ratingGroup=this.value;ratingDisc=null;render()">${groupOpts}</select></div>
+      <div class="field" style="margin:0"><label>Дисциплина</label>
+        <select onchange="ratingDisc=this.value;render()">${discOpts}</select></div>
+      <div class="field" style="margin:0"><label>Преподаватель (автоподстановка)</label>
+        <input value="${teacher}" disabled style="min-width:180px"></div>
+      <div class="field" style="margin:0"><label>Дата</label>
+        <input type="date" value="${ratingDate}" onchange="ratingDate=this.value"></div>
+      <div class="field" style="margin:0"><label>Порог зачёта</label>
+        <input type="number" min="0" max="100" value="${thr}" style="width:80px" onchange="DB.ratingThreshold=+this.value||0;save();render()"></div>
+      <div class="spacer"></div>
+      <button class="btn ${ratingDebtorsOnly?'primary':''}" onclick="ratingDebtorsOnly=!ratingDebtorsOnly;render()">${ratingDebtorsOnly?'Показать всех':'Только задолжники'}</button>
+      <button class="btn green ibtn" onclick="exportRatingCSV()">${SVG.check} Экспорт в Excel (CSV)</button>
+    </div>
+
+    <div class="stat" style="margin-bottom:14px">
+      <div class="b"><div class="n">${students.length}</div><div class="l">Студентов</div></div>
+      <div class="b"><div class="n">${filled}</div><div class="l">С оценками</div></div>
+      <div class="b"><div class="n" style="color:var(--green)">${passed}</div><div class="l">Сдали</div></div>
+      <div class="b ${debt?'warnbox':''}"><div class="n">${debt}</div><div class="l">Задолжников</div></div>
+      <div class="b"><div class="n">${avg}</div><div class="l">Средний балл</div></div>
+    </div>
+
+    <div class="sched-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:44px">№</th><th>ФИО студента</th>
+          <th style="width:110px">Посещ. (30%)</th><th style="width:110px">КР (35%)</th><th style="width:110px">ДЗ (35%)</th>
+          <th style="width:90px">Итог</th><th style="width:110px">Статус</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
   </div></div>`;
+}
+
+function setScore(idx, field, val){
+  const grp=G(ratingGroup); const st=grp.students[idx]; if(!st||!ratingDisc) return;
+  const k=RK(ratingGroup,ratingDisc);
+  DB.scores[k] = DB.scores[k] || {};
+  DB.scores[k][st] = DB.scores[k][st] || {att:'',kr:'',dz:''};
+  let v = val==='' ? '' : Math.max(0, Math.min(100, +val||0));
+  DB.scores[k][st][field] = v;
+  const disc=D(ratingDisc);
+  logAction(`Балл: ${st} · ${disc?disc.name:''} · ${ {att:'посещаемость',kr:'КР',dz:'ДЗ'}[field] }=${v===''?'—':v}`);
+  save(); render();
+}
+
+function exportRatingCSV(){
+  const grp=G(ratingGroup), disc=D(ratingDisc);
+  if(!grp||!disc){ toast('Выберите группу и дисциплину'); return; }
+  const thr=DB.ratingThreshold;
+  const head=['№','ФИО','Посещаемость','КР','ДЗ','Итог','Статус'];
+  const lines=[`Ведомость: ${grp.name} — ${disc.name}`, `Преподаватель: ${ratingTeacherName(ratingGroup,ratingDisc)}`, `Дата: ${ratingDate}`, '', head.join(';')];
+  (grp.students||[]).forEach((st,i)=>{
+    const rec=ratingRec(ratingGroup,ratingDisc,st); const total=ratingTotal(rec);
+    const status = total===null?'—':(total>=thr?'Сдал':'Долг');
+    lines.push([i+1, st, rec.att===''?'':rec.att, rec.kr===''?'':rec.kr, rec.dz===''?'':rec.dz, total===null?'':total, status].join(';'));
+  });
+  const csv='﻿'+lines.join('\r\n');                 // BOM для кириллицы в Excel
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`Рейтинг_${grp.name}_${disc.name}_${ratingDate}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+  logAction(`Экспорт ведомости: ${grp.name} — ${disc.name}`); save();
+  toast('Файл выгружен (откроется в Excel)');
 }
 
 /* ---------- ПРОФИЛЬ ЗАМА ---------- */
@@ -820,11 +1073,11 @@ function viewSchedule(){
 
   let banner='';
   if(DB.placements.length===0){
-    banner = `<div class="banner ok">Нажмите «Сгенерировать автоматически» — алгоритм распределит пары с учётом окон доступности преподавателей.</div>`;
+    banner = `<div class="banner ok iban">${SVG.info} Нажмите «Сгенерировать автоматически» — алгоритм распределит пары с учётом окон доступности преподавателей.</div>`;
   } else if(confCount>0){
-    banner = `<div class="banner err">⚠ Обнаружено коллизий: <b>${confCount}</b>. Проблемные пары подсвечены. Исправьте перетаскиванием.</div>`;
+    banner = `<div class="banner err iban">${SVG.alert} Обнаружено коллизий: <b>${confCount}</b>. Проблемные пары подсвечены. Исправьте перетаскиванием.</div>`;
   } else {
-    banner = `<div class="banner ok">✔ Расписание согласовано, коллизий нет. Окна (разрывы): <b>${totalGaps(DB.placements)}</b>.</div>`;
+    banner = `<div class="banner ok iban">${SVG.check} Расписание согласовано, коллизий нет. Окна (разрывы): <b>${totalGaps(DB.placements)}</b>.</div>`;
   }
 
   return `
@@ -840,7 +1093,7 @@ function viewSchedule(){
       <div class="field" style="margin:0"><label>Группа (сетка)</label>
         <select id="groupSel" onchange="currentGroupView=this.value;render()">${groupOpts}</select></div>
       <div class="spacer"></div>
-      <button class="btn green" onclick="doGenerate()">⚙ Сгенерировать автоматически</button>
+      <button class="btn green ibtn" onclick="doGenerate()">${SVG.gen} Сгенерировать автоматически</button>
       <button class="btn" onclick="checkNow()">Проверить коллизии</button>
       <button class="btn danger" onclick="clearSchedule()">Очистить</button>
     </div>
@@ -1204,6 +1457,13 @@ function doLogin(){
 }
 document.getElementById('loginBtn').addEventListener('click', doLogin);
 ['loginUser','loginPass'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); }));
+document.getElementById('eyeBtn').addEventListener('click', ()=>{
+  const inp=document.getElementById('loginPass');
+  const on = inp.type==='password';
+  inp.type = on ? 'text' : 'password';
+  document.querySelector('.lg-eye .eye-off').style.display = on ? 'none' : '';
+  document.querySelector('.lg-eye .eye-on').style.display  = on ? '' : 'none';
+});
 document.getElementById('demoNote').innerHTML =
   'Демо-доступ:<br>Зам — <code>zam</code> / <code>zam123</code><br>Ст. зам — <code>admin</code> / <code>admin123</code>';
 

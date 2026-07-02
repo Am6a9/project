@@ -1,0 +1,10 @@
+# Netlify: статический сайт, сборка не нужна — публикуем корень репозитория
+[build]
+  publish = "."
+  command = ""
+
+# index.html отдаётся как главная страница
+[[redirects]]
+  from = "/"
+  to = "/index.html"
+  status = 200
