@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1024">
+<title>АИС учёта успеваемости — Генератор расписания</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#eef1f8; --bg2:#e7ebf6; --panel:#ffffff; --line:#e4e8f1; --line-strong:#cdd4e3;
+    --ink:#171a25; --muted:#697089;
+    --violet:#6d28d9; --violet-d:#4c1d95; --violet-l:#8b5cf6; --violet-soft:#f2ecfe;
+    --blue:#2563eb; --blue-d:#1d4ed8; --green:#059669; --green-d:#047857;
+    --red:#dc2626; --amber:#d97706;
+    --soft:#d8f5e3; --soft-b:#059669; --hard:#fde4e4; --hard-b:#dc2626;
+    --chip:#eef1f8;
+    --shadow:0 1px 2px rgba(23,26,55,.06),0 4px 14px rgba(23,26,55,.06);
+    --shadow-lg:0 10px 30px rgba(23,26,55,.12),0 2px 8px rgba(23,26,55,.06);
+    --ring:0 0 0 3px rgba(109,40,217,.15);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{font-family:"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;display:flex}
+  button{font-family:inherit;font-size:13px;cursor:pointer}
+  input,select{font-family:inherit;font-size:13px}
+
+  /* Sidebar */
+  .side{width:236px;min-width:236px;background:linear-gradient(180deg,var(--violet),var(--violet-d));color:#fff;display:flex;flex-direction:column;height:100vh;position:sticky;top:0}
+  .brand{padding:18px 18px 14px;font-weight:700;letter-spacing:.3px;line-height:1.25}
+  .brand small{display:block;font-weight:400;opacity:.75;font-size:11px;margin-top:3px}
+  .nav{padding:6px 10px;display:flex;flex-direction:column;gap:2px;overflow:auto}
+  .nav button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:transparent;border:0;color:#e9e5fb;padding:10px 12px;border-radius:8px}
+  .nav button:hover{background:rgba(255,255,255,.10);color:#fff}
+  .nav button.active{background:#fff;color:var(--violet-d);font-weight:600}
+  .nav .ico{width:18px;text-align:center}
+  .side-foot{margin-top:auto;padding:12px 16px;font-size:11px;opacity:.8;border-top:1px solid rgba(255,255,255,.15);line-height:1.5}
+
+  /* Main */
+  .main{flex:1;min-width:0;display:flex;flex-direction:column;height:100vh;overflow:auto}
+  .top{position:sticky;top:0;z-index:5;background:var(--panel);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:12px 22px}
+  .top h1{font-size:16px;margin:0;font-weight:600}
+  .top .search{margin-left:auto;display:flex;align-items:center;gap:8px}
+  .top .search input{width:260px;padding:8px 12px;border:1px solid var(--line-strong);border-radius:8px;background:#fff}
+  .content{padding:22px;flex:1}
+
+  h2.section{font-size:15px;margin:0 0 4px}
+  .hint{color:var(--muted);font-size:12.5px;margin:0 0 16px;max-width:900px;line-height:1.5}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);margin-bottom:18px}
+  .card > .head{padding:12px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px}
+  .card > .head h3{margin:0;font-size:14px}
+  .card > .body{padding:16px}
+
+  .btn{border:1px solid var(--line-strong);background:#fff;color:var(--ink);padding:8px 14px;border-radius:8px;font-weight:500}
+  .btn:hover{background:#f3f5fa}
+  .btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  .btn.primary:hover{filter:brightness(1.05)}
+  .btn.green{background:var(--green);border-color:var(--green);color:#fff}
+  .btn.green:hover{filter:brightness(1.05)}
+  .btn.ghost{background:transparent}
+  .btn.sm{padding:5px 9px;font-size:12px}
+  .btn.danger{color:var(--red);border-color:#f0c2c2}
+  .btn.danger:hover{background:#fdecec}
+
+  table{width:100%;border-collapse:collapse}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}
+  th{font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);font-weight:600;background:#fafbfd}
+  tbody tr:hover{background:#fafbff}
+  .chip{display:inline-block;background:var(--chip);border:1px solid var(--line);border-radius:20px;padding:2px 10px;font-size:12px;margin:2px 3px 2px 0}
+  .chip.violet{background:#efe9fb;border-color:#d9cdf3;color:var(--violet-d)}
+  .chip.blue{background:#e5eefe;border-color:#c9dcfd;color:#1d4ed8}
+
+  .field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+  .field label{font-size:12px;color:var(--muted);font-weight:600}
+  .field input,.field select,.field textarea{padding:8px 10px;border:1px solid var(--line-strong);border-radius:8px;background:#fff}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 16px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .spacer{flex:1}
+
+  /* Modal */
+  .modal-bg{position:fixed;inset:0;background:rgba(20,24,40,.42);display:none;align-items:flex-start;justify-content:center;z-index:40;overflow:auto;padding:40px 16px}
+  .modal-bg.open{display:flex}
+  .modal{background:#fff;border-radius:14px;width:640px;max-width:100%;box-shadow:0 18px 50px rgba(20,24,40,.3)}
+  .modal .m-head{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center}
+  .modal .m-head h3{margin:0;font-size:15px}
+  .modal .m-body{padding:20px;max-height:70vh;overflow:auto}
+  .modal .m-foot{padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-end}
+  .x{margin-left:auto;background:none;border:0;font-size:20px;color:var(--muted);cursor:pointer;line-height:1}
+
+  /* Availability matrix */
+  .matrix{border-collapse:collapse;user-select:none}
+  .matrix th,.matrix td{border:1px solid var(--line-strong);text-align:center;padding:0}
+  .matrix th{padding:6px 8px;background:#fafbfd;font-size:11px}
+  .matrix td.cell{width:64px;height:38px;cursor:pointer;font-size:11px;font-weight:600;transition:background .08s}
+  .matrix td.cell.neutral{background:#fff;color:#c3c9d4}
+  .matrix td.cell.soft{background:var(--soft);color:var(--soft-b)}
+  .matrix td.cell.hard{background:var(--hard);color:var(--hard-b)}
+  .matrix td.cell:hover{outline:2px solid var(--violet);outline-offset:-2px}
+  .legend{display:flex;gap:16px;margin-top:10px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .sw{width:14px;height:14px;border-radius:3px;border:1px solid var(--line-strong);display:inline-block}
+
+  /* Schedule grid */
+  .sched-toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+  .sched-wrap{overflow:auto}
+  table.sched{border-collapse:separate;border-spacing:0;min-width:860px}
+  table.sched th,table.sched td{border:1px solid var(--line);vertical-align:top}
+  table.sched th{background:#f4f0fc;color:var(--violet-d);position:sticky;top:0}
+  table.sched td.timecol,table.sched th.timecol{background:#fafbfd;color:var(--muted);width:120px;text-align:center;vertical-align:middle;font-size:12px;position:sticky;left:0}
+  table.sched th{text-align:center;padding:10px 6px;font-size:12.5px}
+  .slot{min-height:66px;padding:5px}
+  .slot.dragover{background:#eef6ff;outline:2px dashed var(--blue);outline-offset:-3px}
+  .lesson{border-radius:8px;padding:7px 8px;color:#fff;cursor:grab;box-shadow:var(--shadow);font-size:12px;line-height:1.3}
+  .lesson:active{cursor:grabbing}
+  .lesson .d{font-weight:700}
+  .lesson .t{opacity:.92;font-size:11px}
+  .lesson .ty{opacity:.85;font-size:10px;text-transform:uppercase;letter-spacing:.3px}
+  .lesson.conflict{outline:3px solid #ffd400;box-shadow:0 0 0 3px rgba(220,38,38,.35)}
+  .lesson .warn{display:block;margin-top:3px;font-size:10px;background:rgba(0,0,0,.22);border-radius:4px;padding:2px 5px}
+
+  .stat{display:flex;gap:22px;flex-wrap:wrap;margin-bottom:8px}
+  .stat .b{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:120px}
+  .stat .b .n{font-size:20px;font-weight:700}
+  .stat .b .l{font-size:11.5px;color:var(--muted)}
+  .stat .b.warnbox .n{color:var(--red)}
+
+  .banner{border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:14px;display:flex;gap:10px;align-items:center}
+  .banner.ok{background:var(--soft);border:1px solid #b6e6c4;color:#14663a}
+  .banner.err{background:var(--hard);border:1px solid #f3bcbc;color:#9b1c1c}
+  .empty{color:var(--muted);text-align:center;padding:30px}
+  .placeholder{padding:40px;text-align:center;color:var(--muted)}
+  .placeholder .big{font-size:15px;color:var(--ink);margin-bottom:6px}
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:60;opacity:0;transition:opacity .2s;pointer-events:none}
+  .toast.show{opacity:1}
+  small.mut{color:var(--muted)}
+  .tag{font-size:10px;padding:2px 6px;border-radius:5px;background:var(--chip);border:1px solid var(--line);color:var(--muted)}
+  .tag.lec{background:#e5eefe;color:#1d4ed8;border-color:#c9dcfd}
+  .tag.prac{background:#fff4e0;color:#b45309;border-color:#f4dcae}
+
+  /* Login */
+  .login-scr{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,#4a2f97,#2b1c66);padding:20px}
+  .login-card{background:#fff;width:400px;max-width:100%;border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.35);overflow:hidden}
+  .login-card .lc-head{padding:26px 28px 6px}
+  .login-card .lc-head .logo{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,var(--violet),var(--violet-d));color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;margin-bottom:14px}
+  .login-card h2{margin:0;font-size:19px}
+  .login-card p.sub{margin:4px 0 0;color:var(--muted);font-size:13px}
+  .login-card .lc-body{padding:18px 28px 26px}
+  .login-card .field input{padding:11px 12px}
+  .login-err{background:var(--hard);border:1px solid #f3bcbc;color:#9b1c1c;border-radius:8px;padding:9px 12px;font-size:12.5px;margin-bottom:12px;display:none}
+  .login-err.show{display:block}
+  .login-btn{width:100%;padding:12px;border:0;border-radius:9px;background:var(--violet);color:#fff;font-weight:600;font-size:14px;cursor:pointer;margin-top:4px}
+  .login-btn:hover{background:var(--violet-d)}
+  .demo-note{margin-top:16px;font-size:12px;color:var(--muted);background:#f6f4fc;border:1px solid #e4ddf6;border-radius:8px;padding:10px 12px;line-height:1.55}
+  .demo-note code{background:#fff;border:1px solid var(--line);border-radius:4px;padding:1px 6px;font-size:12px}
+  .user-badge{display:flex;align-items:center;gap:9px;padding:10px 14px;border-top:1px solid rgba(255,255,255,.15)}
+  .user-badge .ava{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+  .user-badge .un{font-size:12.5px;font-weight:600;line-height:1.2}
+  .user-badge .ur{font-size:10.5px;opacity:.75}
+  .user-badge button{margin-left:auto;background:rgba(255,255,255,.14);border:0;color:#fff;border-radius:7px;padding:6px 9px;font-size:11px;cursor:pointer}
+  .user-badge button:hover{background:rgba(255,255,255,.26)}
+
+  /* ============================================================
+     ВИЗУАЛЬНОЕ УСИЛЕНИЕ (те же цвета, насыщеннее, аккуратный UI)
+     ============================================================ */
+  body{
+    font-family:"Inter","Segoe UI",Roboto,Arial,sans-serif;
+    background:
+      radial-gradient(1200px 500px at 100% -10%, rgba(109,40,217,.06), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(37,99,235,.06), transparent 55%),
+      linear-gradient(180deg,var(--bg),var(--bg2));
+    -webkit-font-smoothing:antialiased;letter-spacing:.1px;
+  }
+  h1,h2,h3,.brand,.stat .b .n,.login-card h2{font-family:"Manrope","Inter",sans-serif;letter-spacing:-.2px}
+
+  /* Sidebar */
+  .side{
+    background:linear-gradient(165deg,#7c3aed 0%,var(--violet) 42%,var(--violet-d) 100%);
+    box-shadow:6px 0 26px rgba(76,29,149,.20);position:relative;overflow:hidden}
+  .side::before{content:"";position:absolute;inset:0;background:
+    radial-gradient(340px 220px at 90% 4%, rgba(255,255,255,.14), transparent 60%),
+    radial-gradient(300px 200px at 0% 100%, rgba(255,255,255,.06), transparent 60%);pointer-events:none}
+  .brand{position:relative;padding:20px 20px 16px;font-weight:800;font-size:15px}
+  .brand small{opacity:.72;margin-top:5px}
+  .nav{position:relative;padding:8px 12px}
+  .nav button{color:#efe9ff;padding:11px 13px;border-radius:11px;font-weight:500;transition:background .16s,transform .16s,box-shadow .16s;position:relative}
+  .nav button:hover{background:rgba(255,255,255,.12);transform:translateX(2px)}
+  .nav button.active{background:linear-gradient(180deg,#ffffff,#f4f0ff);color:var(--violet-d);font-weight:700;box-shadow:0 8px 18px rgba(20,10,60,.22)}
+  .nav button.active::before{content:"";position:absolute;left:-12px;top:50%;transform:translateY(-50%);width:4px;height:22px;border-radius:0 4px 4px 0;background:#ffd24a}
+  .nav .ico{font-size:15px;filter:saturate(1.1)}
+  .user-badge{position:relative}
+  .side-foot{position:relative}
+
+  /* Top bar */
+  .top{background:rgba(255,255,255,.82);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);box-shadow:0 1px 0 rgba(23,26,55,.02)}
+  .top h1{font-size:17px;font-weight:800}
+  .top h1::before{content:"";display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:10px;vertical-align:middle;
+    background:linear-gradient(135deg,var(--violet-l),var(--violet));box-shadow:0 0 0 4px rgba(109,40,217,.14)}
+  .top .search input{border-radius:10px;transition:box-shadow .16s,border-color .16s;background:#fbfcff}
+  .top .search input:focus{outline:none;border-color:var(--violet-l);box-shadow:var(--ring)}
+
+  h2.section{font-size:19px;font-weight:800}
+  .hint{font-size:13px}
+
+  /* Cards */
+  .card{border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);transition:box-shadow .2s,transform .2s;overflow:hidden}
+  .card:hover{box-shadow:var(--shadow-lg)}
+  .card > .head{background:linear-gradient(180deg,#fbfcff,#f6f8fd);border-bottom:1px solid var(--line);padding:14px 18px}
+  .card > .head h3{font-size:14px;font-weight:700}
+  .card > .body{padding:18px}
+
+  /* Buttons */
+  .btn{border-radius:10px;font-weight:600;padding:9px 15px;transition:transform .12s,box-shadow .16s,background .16s,filter .16s;box-shadow:0 1px 2px rgba(23,26,55,.06)}
+  .btn:hover{transform:translateY(-1px)}
+  .btn:active{transform:translateY(0)}
+  .btn.primary{background:linear-gradient(180deg,#3b82f6,var(--blue));border-color:var(--blue-d);box-shadow:0 6px 16px rgba(37,99,235,.3)}
+  .btn.green{background:linear-gradient(180deg,#10b981,var(--green));border-color:var(--green-d);box-shadow:0 6px 16px rgba(5,150,105,.28)}
+  .btn.primary:hover,.btn.green:hover{filter:brightness(1.06)}
+  .btn.danger{color:var(--red);border-color:#f1c4c4;background:#fff}
+  .btn.sm{border-radius:8px;box-shadow:none}
+
+  /* Tables */
+  th{background:linear-gradient(180deg,#f7f9fd,#f1f4fb);letter-spacing:.5px}
+  tbody tr{transition:background .12s}
+  tbody tr:hover{background:#f7f9ff}
+  .chip{border-radius:999px;font-weight:600}
+  .chip.violet{background:var(--violet-soft);border-color:#e0d3fb;color:var(--violet-d)}
+  .chip.blue{background:#e4edff;border-color:#c7dbff;color:var(--blue-d)}
+
+  /* Fields */
+  .field input,.field select,.field textarea{border-radius:10px;transition:border-color .16s,box-shadow .16s;background:#fbfcff}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--violet-l);box-shadow:var(--ring)}
+
+  /* Stat boxes */
+  .stat .b{border-radius:14px;box-shadow:var(--shadow);position:relative;overflow:hidden;padding:14px 16px;transition:transform .16s,box-shadow .16s}
+  .stat .b:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+  .stat .b::after{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--violet-l),var(--violet))}
+  .stat .b .n{font-size:24px;font-weight:800}
+  .stat .b.warnbox::after{background:linear-gradient(180deg,#f87171,var(--red))}
+
+  /* Schedule */
+  table.sched th{background:linear-gradient(180deg,#f4efff,#ece2ff);color:var(--violet-d);font-weight:700}
+  table.sched td.timecol,table.sched th.timecol{background:linear-gradient(180deg,#fbfcff,#f4f6fc)}
+  .slot{border-radius:8px;transition:background .12s}
+  .slot.dragover{background:#e8f1ff;outline:2px dashed var(--blue)}
+  .lesson{border-radius:10px;padding:8px 9px;box-shadow:0 4px 12px rgba(23,26,55,.18);transition:transform .12s,box-shadow .16s,filter .16s;position:relative;overflow:hidden}
+  .lesson::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,0));pointer-events:none}
+  .lesson:hover{transform:translateY(-2px) scale(1.01);box-shadow:0 8px 20px rgba(23,26,55,.26);filter:brightness(1.04)}
+  .lesson.conflict{outline:3px solid #ffd400;box-shadow:0 0 0 3px rgba(220,38,38,.4),0 6px 16px rgba(220,38,38,.25);animation:pulseBad 1.6s ease-in-out infinite}
+  @keyframes pulseBad{0%,100%{box-shadow:0 0 0 3px rgba(220,38,38,.4),0 6px 16px rgba(220,38,38,.22)}50%{box-shadow:0 0 0 5px rgba(220,38,38,.28),0 6px 16px rgba(220,38,38,.3)}}
+
+  /* Banners */
+  .banner{border-radius:12px;font-weight:500;box-shadow:var(--shadow)}
+  .banner.ok{background:linear-gradient(180deg,#e6faee,#d8f5e3)}
+  .banner.err{background:linear-gradient(180deg,#fdeaea,#fbdcdc)}
+
+  /* Matrix */
+  .matrix td.cell{transition:transform .1s,background .12s}
+  .matrix td.cell:hover{outline:2px solid var(--violet);transform:scale(1.06);z-index:2;position:relative}
+  .matrix td.cell.soft{background:linear-gradient(180deg,#e4f9ec,var(--soft))}
+  .matrix td.cell.hard{background:linear-gradient(180deg,#fdeaea,var(--hard))}
+
+  /* Modal */
+  .modal{border-radius:18px;box-shadow:0 24px 70px rgba(23,26,55,.34);animation:modalIn .18s ease-out}
+  @keyframes modalIn{from{opacity:0;transform:translateY(10px) scale(.99)}to{opacity:1;transform:none}}
+  .modal .m-head{background:linear-gradient(180deg,#fbfcff,#f5f7fd)}
+
+  /* Login */
+  .login-scr{background:
+    radial-gradient(700px 500px at 15% 20%, rgba(139,92,246,.55), transparent 60%),
+    radial-gradient(700px 500px at 85% 80%, rgba(37,99,235,.45), transparent 60%),
+    linear-gradient(135deg,#4c1d95,#2b1c66)}
+  .login-card{border-radius:20px;box-shadow:0 30px 80px rgba(0,0,0,.4);animation:modalIn .22s ease-out}
+  .login-card .lc-head .logo{box-shadow:0 10px 22px rgba(109,40,217,.4);background:linear-gradient(135deg,var(--violet-l),var(--violet-d))}
+  .login-card h2{font-size:20px;font-weight:800}
+  .login-btn{background:linear-gradient(180deg,#7c3aed,var(--violet));box-shadow:0 10px 22px rgba(109,40,217,.35);transition:filter .16s,transform .12s}
+  .login-btn:hover{background:linear-gradient(180deg,#8b5cf6,var(--violet));filter:brightness(1.03);transform:translateY(-1px)}
+
+  .content{animation:fadeUp .22s ease-out}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  ::-webkit-scrollbar{width:11px;height:11px}
+  ::-webkit-scrollbar-thumb{background:#c7cede;border-radius:8px;border:3px solid transparent;background-clip:content-box}
+  ::-webkit-scrollbar-thumb:hover{background:#aab3ca;background-clip:content-box}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+  <!-- Экран авторизации (закрытый вход, учётки только для Замов) -->
+  <div class="login-scr" id="loginScreen">
+    <div class="login-card">
+      <div class="lc-head">
+        <div class="logo">А</div>
+        <h2>АИС «Академия ТОП»</h2>
+        <p class="sub">Учёт успеваемости · вход в консоль Заместителя</p>
+      </div>
+      <div class="lc-body">
+        <div class="login-err" id="loginErr"></div>
+        <div class="field"><label>Логин</label><input id="loginUser" autocomplete="username" placeholder="Введите логин"></div>
+        <div class="field"><label>Пароль</label><input id="loginPass" type="password" autocomplete="current-password" placeholder="Введите пароль"></div>
+        <button class="login-btn" id="loginBtn">Войти в систему</button>
+        <div class="demo-note" id="demoNote"></div>
+      </div>
+    </div>
+  </div>
+
+  <aside class="side">
+    <div class="brand">АИС «Академия ТОП»<small>Учёт успеваемости · Консоль Зама</small></div>
+    <nav class="nav" id="nav">
+      <button data-tab="dashboard"><span class="ico">▦</span> Дашборд</button>
+      <button data-tab="schedule" class="active"><span class="ico">🗓</span> Генератор расписания</button>
+      <button data-tab="teachers"><span class="ico">👤</span> Преподаватели</button>
+      <button data-tab="groups"><span class="ico">🎓</span> Группы и нагрузка</button>
+      <button data-tab="disciplines"><span class="ico">📚</span> Дисциплины</button>
+      <button data-tab="rating"><span class="ico">📊</span> База рейтинга</button>
+      <button data-tab="profile"><span class="ico">⚙</span> Профиль Зама</button>
+    </nav>
+    <div class="user-badge" id="userBadge"></div>
+    <div class="side-foot" id="sideFoot"></div>
+  </aside>
+
+  <div class="main">
+    <div class="top">
+      <h1 id="topTitle">Генератор расписания</h1>
+      <div class="search">
+        <input id="globalSearch" placeholder="Поиск: преподаватель / группа / дисциплина">
+      </div>
+    </div>
+    <div class="content" id="content"></div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-bg" id="modalBg">
+    <div class="modal">
+      <div class="m-head"><h3 id="mTitle"></h3><button class="x" onclick="closeModal()">×</button></div>
+      <div class="m-body" id="mBody"></div>
+      <div class="m-foot" id="mFoot"></div>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   АИС учёта успеваемости — модуль «Генератор расписания»
+   Vanilla JS, хранение в localStorage. Открывается как файл.
+   ============================================================ */
+
+const DAYS = ['Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
+const DAYS_SHORT = ['Пн','Вт','Ср','Чт','Пт','Сб'];
+const SLOTS = [
+  {n:1,t:'08:30–10:00'},
+  {n:2,t:'10:10–11:40'},
+  {n:3,t:'12:10–13:40'},
+  {n:4,t:'13:50–15:20'},
+  {n:5,t:'15:30–17:00'},
+];
+const MAX_PAIRS_PER_DAY = 4;           // ТЗ: не более 4 пар / 8 ак.часов в день на группу
+const LESSON_COLORS = ['#5b3fb5','#2563eb','#0891b2','#16a34a','#b45309','#be185d','#4338ca','#0f766e','#9333ea','#c2410c'];
+
+/* ---------- Хранилище ---------- */
+const LS_KEY = 'ais_schedule_v1';
+let DB = load();
+
+function load(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(raw){ return migrate(JSON.parse(raw)); }
+  }catch(e){}
+  return seed();
+}
+// Дозаполнение полей для БД, сохранённых до появления авторизации
+function migrate(db){
+  if(!db.users || !db.users.length){
+    db.users = [
+      {id:'u1', login:'zam',   name:'Ахметова Д.С.', role:'Заместитель',     pass:hashPass('zam123'),   active:true},
+      {id:'u2', login:'admin', name:'Орлов К.В.',    role:'Ст. заместитель', pass:hashPass('admin123'), active:true},
+    ];
+  }
+  if(!db.auditLog) db.auditLog = [];
+  return db;
+}
+function save(){ localStorage.setItem(LS_KEY, JSON.stringify(DB)); renderFoot(); }
+function uid(){ return Math.random().toString(36).slice(2,9); }
+
+/* ---------- Демоданные (по примерам из ТЗ) ---------- */
+function seed(){
+  // Матрица доступности: 6 дней × 5 пар. 0=нейтрально, 1=soft(предпочтение), 2=hard(запрет)
+  const grid = (fn)=> DAYS.map((_,d)=> SLOTS.map((_,s)=> fn(d,s)));
+
+  // Асанов А.А. — все дни, кроме пятницы (пятница = day 4 → запрет)
+  const asanov = grid((d,s)=> d===4 ? 2 : 0);
+  // Потнин И.В. — каждый день только 1 и 2 пары (остальные пары запрещены)
+  const potnin = grid((d,s)=> s>1 ? 2 : 0);
+  // Ким О.С. — среда методический день (запрет), понедельник — предпочтение
+  const kim = grid((d,s)=> d===2 ? 2 : (d===0 ? 1 : 0));
+  // Ли В.П. — без ограничений, любит утро (1–2 пары предпочтительны)
+  const li = grid((d,s)=> s<2 ? 1 : 0);
+
+  const teachers = [
+    {id:'t1', name:'Асанов А.А.', program:'РПО', notes:'Все дни, кроме пятницы', avail:asanov},
+    {id:'t2', name:'Потнин И.В.', program:'КГИД', notes:'Каждый день только 1 и 2 пары', avail:potnin},
+    {id:'t3', name:'Ким О.С.',    program:'РПО', notes:'Среда — методический день', avail:kim},
+    {id:'t4', name:'Ли В.П.',     program:'КГИД', notes:'Предпочитает утренние пары', avail:li},
+  ];
+
+  const disciplines = [
+    {id:'d1', name:'Программирование',        type:'Лекция',   hours:72, teacherIds:['t1','t3']},
+    {id:'d2', name:'Базы данных',             type:'Практика', hours:54, teacherIds:['t1']},
+    {id:'d3', name:'Web-разработка',          type:'Практика', hours:72, teacherIds:['t2']},
+    {id:'d4', name:'Компьютерная графика',    type:'Практика', hours:54, teacherIds:['t4']},
+    {id:'d5', name:'Математика',              type:'Лекция',   hours:36, teacherIds:['t3']},
+    {id:'d6', name:'Проектная деятельность',  type:'Практика', hours:36, teacherIds:['t2','t4']},
+  ];
+
+  const groups = [
+    {id:'g1', name:'РПО-21', course:2, students:['Иванов И.','Петров П.','Сидорова А.'],
+      load:[
+        {disciplineId:'d1', teacherId:'t1', pairs:3},
+        {disciplineId:'d2', teacherId:'t1', pairs:2},
+        {disciplineId:'d5', teacherId:'t3', pairs:2},
+        {disciplineId:'d6', teacherId:'t2', pairs:1},
+      ]},
+    {id:'g2', name:'КГИД-21', course:2, students:['Ким Д.','Ли А.','Цой Р.'],
+      load:[
+        {disciplineId:'d3', teacherId:'t2', pairs:3},
+        {disciplineId:'d4', teacherId:'t4', pairs:2},
+        {disciplineId:'d6', teacherId:'t4', pairs:1},
+      ]},
+  ];
+
+  // Учётные записи (создаются только для Замов). Пароли хранятся в виде хэша.
+  const users = [
+    {id:'u1', login:'zam',    name:'Ахметова Д.С.', role:'Заместитель',        pass:hashPass('zam123'),   active:true},
+    {id:'u2', login:'admin',  name:'Орлов К.В.',    role:'Ст. заместитель',    pass:hashPass('admin123'), active:true},
+  ];
+
+  return {teachers, disciplines, groups, placements:[], users, auditLog:[],
+          period:'Неделя', lastBackup:new Date().toISOString()};
+}
+
+/* ---------- Авторизация ---------- */
+// Простой хэш (демо): не хранить пароли в открытом виде. Для боевой системы — bcrypt/argon2 на сервере.
+function hashPass(s){ let h=5381; for(let i=0;i<s.length;i++){ h=((h<<5)+h)^s.charCodeAt(i); } return 'h'+(h>>>0).toString(16); }
+let CURRENT_USER = null;
+const SESSION_KEY = 'ais_session_v1';
+
+function currentUser(){ return CURRENT_USER ? DB.users.find(u=>u.id===CURRENT_USER) : null; }
+function logAction(action){
+  const u = currentUser();
+  DB.auditLog = DB.auditLog || [];
+  DB.auditLog.unshift({ts:new Date().toISOString(), user:u?u.name:'—', login:u?u.login:'—', action});
+  if(DB.auditLog.length>500) DB.auditLog.length=500;
+}
+function tryLogin(login, pass){
+  const u = DB.users.find(x=>x.login===login.trim().toLowerCase());
+  if(!u || !u.active) return {ok:false, msg:'Пользователь не найден или заблокирован'};
+  if(u.pass !== hashPass(pass)) return {ok:false, msg:'Неверный логин или пароль'};
+  CURRENT_USER = u.id;
+  sessionStorage.setItem(SESSION_KEY, u.id);
+  logAction('Вход в систему'); save();
+  return {ok:true};
+}
+function logout(){
+  logAction('Выход из системы'); save();
+  CURRENT_USER = null; sessionStorage.removeItem(SESSION_KEY);
+  showLogin();
+}
+function showLogin(){
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('loginPass').value='';
+  document.getElementById('loginUser').focus();
+}
+function enterApp(){
+  document.getElementById('loginScreen').style.display='none';
+  renderUserBadge(); renderFoot(); setTab('schedule');
+}
+function renderUserBadge(){
+  const u=currentUser(); if(!u){ document.getElementById('userBadge').innerHTML=''; return; }
+  document.getElementById('userBadge').innerHTML =
+    `<div class="ava">${u.name.charAt(0)}</div>
+     <div><div class="un">${u.name}</div><div class="ur">${u.role}</div></div>
+     <button onclick="logout()" title="Выйти">Выход</button>`;
+}
+
+/* ---------- Утилиты доступа ---------- */
+const T = id => DB.teachers.find(t=>t.id===id);
+const D = id => DB.disciplines.find(d=>d.id===id);
+const G = id => DB.groups.find(g=>g.id===id);
+function colorForDiscipline(id){ const i = DB.disciplines.findIndex(d=>d.id===id); return LESSON_COLORS[(i<0?0:i)%LESSON_COLORS.length]; }
+
+/* =====================================================================
+   АЛГОРИТМ АВТОГЕНЕРАЦИИ РАСПИСАНИЯ
+   Рандомизированный жадный алгоритм с перезапусками (multi-start).
+   Жёсткие ограничения (фильтр кандидатов):
+     • преподаватель не занят в другой группе в этот слот;
+     • группа не имеет другой пары в этот слот;
+     • слот не помечен как «запрет» (hard) в матрице преподавателя;
+     • ≤ 4 пар в день на группу.
+   Мягкие критерии (оценка кандидата, максимизируется):
+     • +бонус за «предпочтительный» (soft) слот преподавателя;
+     • −штраф за «окна» (разрывы) в дне группы и преподавателя.
+   ===================================================================== */
+function generateSchedule(){
+  // 1. Разворачиваем нагрузку в список отдельных пар
+  const lessons = [];
+  DB.groups.forEach(g=>{
+    (g.load||[]).forEach(l=>{
+      for(let i=0;i<l.pairs;i++){
+        lessons.push({id:uid(), groupId:g.id, disciplineId:l.disciplineId, teacherId:l.teacherId});
+      }
+    });
+  });
+  if(lessons.length===0) return {placements:[], unplaced:[], gaps:0, ok:false, empty:true};
+
+  const RESTARTS = 60;
+  let best = null;
+
+  for(let r=0;r<RESTARTS;r++){
+    const order = shuffle(lessons.slice());
+    // occupancy maps
+    const teacherBusy = {};  // key day-slot -> teacherId set
+    const groupCells = {};   // groupId -> day -> {slot:lessonId}
+    const teacherCells = {}; // teacherId -> day -> Set(slot)
+    const placed = [];
+    const unplaced = [];
+
+    for(const les of order){
+      const cand = [];
+      for(let d=0; d<DAYS.length; d++){
+        for(let s=0; s<SLOTS.length; s++){
+          if(!isFeasible(les, d, s, teacherBusy, groupCells)) continue;
+          const score = scoreSlot(les, d, s, groupCells, teacherCells);
+          cand.push({d,s,score});
+        }
+      }
+      if(cand.length===0){ unplaced.push(les); continue; }
+      // выбираем лучшие по score, среди топовых — случайно (рандомизация без предвзятости)
+      cand.sort((a,b)=> b.score - a.score);
+      const topScore = cand[0].score;
+      const top = cand.filter(c=> c.score >= topScore - 0.001);
+      const pick = top[Math.floor(Math.random()*top.length)];
+      const p = {...les, day:pick.d, slot:pick.s};
+      placed.push(p);
+      // update occupancy
+      teacherBusy[key(pick.d,pick.s)] = les.teacherId;
+      (groupCells[les.groupId] ||= {}); (groupCells[les.groupId][pick.d] ||= {});
+      groupCells[les.groupId][pick.d][pick.s] = les.id;
+      (teacherCells[les.teacherId] ||= {}); (teacherCells[les.teacherId][pick.d] ||= new Set());
+      teacherCells[les.teacherId][pick.d].add(pick.s);
+    }
+
+    const gaps = totalGaps(placed);
+    const cost = unplaced.length*1000 + gaps;
+    if(!best || cost < best.cost){
+      best = {cost, placements:placed, unplaced, gaps};
+    }
+    if(best.cost===0) break;
+  }
+
+  best.ok = best.unplaced.length===0;
+  return best;
+}
+
+function key(d,s){ return d+'-'+s; }
+
+// Жёсткие ограничения
+function isFeasible(les, d, s, teacherBusy, groupCells){
+  const t = T(les.teacherId);
+  if(t && t.avail[d][s]===2) return false;                 // запрет преподавателя
+  const tb = teacherBusy[key(d,s)];
+  if(tb && tb!==null && tb!==undefined) return false;      // преподаватель уже занят
+  const gc = groupCells[les.groupId];
+  if(gc && gc[d] && gc[d][s]!==undefined) return false;    // у группы уже есть пара в слоте
+  // лимит пар в день на группу
+  if(gc && gc[d] && Object.keys(gc[d]).length >= MAX_PAIRS_PER_DAY) return false;
+  return true;
+}
+
+// Мягкая оценка кандидата: больше — лучше
+function scoreSlot(les, d, s, groupCells, teacherCells){
+  let score = 0;
+  const t = T(les.teacherId);
+  if(t && t.avail[d][s]===1) score += 6;                   // предпочтительный слот преподавателя
+  // компактность группы: примыкание к уже занятым слотам этого дня
+  const gday = groupCells[les.groupId] && groupCells[les.groupId][d] ? Object.keys(groupCells[les.groupId][d]).map(Number) : [];
+  score += adjacency(gday, s) * 3;
+  score -= newGapPenalty(gday, s) * 2;
+  // компактность преподавателя
+  const tday = teacherCells[les.teacherId] && teacherCells[les.teacherId][d] ? [...teacherCells[les.teacherId][d]] : [];
+  score += adjacency(tday, s) * 2;
+  score -= newGapPenalty(tday, s) * 1.5;
+  // лёгкая тяга к первым парам и первым дням (устойчивость, меньше окон)
+  score -= s*0.05 + d*0.02;
+  return score;
+}
+function adjacency(slots, s){ if(!slots.length) return 0; let a=0; if(slots.includes(s-1))a++; if(slots.includes(s+1))a++; return a; }
+function newGapPenalty(slots, s){
+  if(!slots.length) return 0;
+  const all=[...slots,s]; const mn=Math.min(...all), mx=Math.max(...all);
+  return (mx-mn+1) - all.length; // число дырок в диапазоне дня
+}
+
+// Суммарные окна по всему расписанию (для оценки качества)
+function totalGaps(placements){
+  let gaps=0;
+  const byG={}, byT={};
+  placements.forEach(p=>{
+    (byG[p.groupId] ||= {}); (byG[p.groupId][p.day] ||= []).push(p.slot);
+    (byT[p.teacherId] ||= {}); (byT[p.teacherId][p.day] ||= []).push(p.slot);
+  });
+  const acc = m => { for(const id in m) for(const d in m[id]){ const a=m[id][d]; if(a.length>1){ gaps += (Math.max(...a)-Math.min(...a)+1)-a.length; } } };
+  acc(byG); acc(byT);
+  return gaps;
+}
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+/* =====================================================================
+   КОНТРОЛЬ КОЛЛИЗИЙ (после ручного перетаскивания)
+   ===================================================================== */
+function detectConflicts(){
+  const conf = {}; // placementId -> [reasons]
+  const add=(id,r)=>{ (conf[id] ||= []); if(!conf[id].includes(r)) conf[id].push(r); };
+  const bySlot = {};       // day-slot -> placements
+  const teacherAt = {};    // teacherId|day-slot -> [ids]
+  const groupDay = {};     // groupId|day -> count
+
+  DB.placements.forEach(p=>{
+    // запрет преподавателя
+    const t = T(p.teacherId);
+    if(t && t.avail[p.day][p.slot]===2) add(p.id,'Нарушение окна доступности преподавателя');
+    // двойная занятость преподавателя
+    const tk = p.teacherId+'|'+p.day+'-'+p.slot;
+    (teacherAt[tk] ||= []).push(p);
+    // двойная занятость группы (одна ячейка)
+    const gk = p.groupId+'|'+p.day+'-'+p.slot;
+    (bySlot[gk] ||= []).push(p);
+    // перегрузка дня
+    const gd = p.groupId+'|'+p.day;
+    groupDay[gd] = (groupDay[gd]||0)+1;
+  });
+  for(const k in teacherAt){ if(teacherAt[k].length>1) teacherAt[k].forEach(p=>add(p.id,'Преподаватель назначен в 2 места одновременно')); }
+  for(const k in bySlot){ if(bySlot[k].length>1) bySlot[k].forEach(p=>add(p.id,'Две пары у группы в одном слоте')); }
+  DB.placements.forEach(p=>{ if(groupDay[p.groupId+'|'+p.day] > MAX_PAIRS_PER_DAY) add(p.id,'Превышен лимит 4 пары в день'); });
+  return conf;
+}
+
+/* =====================================================================
+   РЕНДЕР
+   ===================================================================== */
+let TAB = 'schedule';
+let currentGroupView = null;
+
+function renderFoot(){
+  const backup = DB.lastBackup ? new Date(DB.lastBackup).toLocaleString('ru-RU') : '—';
+  document.getElementById('sideFoot').innerHTML =
+    `Групп в системе: <b>${DB.groups.length}</b><br>Преподавателей: <b>${DB.teachers.length}</b><br>Последний бэкап: ${backup}`;
+}
+
+function setTab(tab){
+  TAB = tab;
+  document.querySelectorAll('#nav button').forEach(b=> b.classList.toggle('active', b.dataset.tab===tab));
+  const titles={dashboard:'Дашборд',schedule:'Генератор расписания',teachers:'Справочник преподавателей',groups:'Группы и учебная нагрузка',disciplines:'Справочник дисциплин',rating:'База рейтинга',profile:'Профиль Заместителя'};
+  document.getElementById('topTitle').textContent = titles[tab];
+  render();
+}
+
+function render(){
+  const c = document.getElementById('content');
+  if(TAB==='schedule') c.innerHTML = viewSchedule();
+  else if(TAB==='teachers') c.innerHTML = viewTeachers();
+  else if(TAB==='groups') c.innerHTML = viewGroups();
+  else if(TAB==='disciplines') c.innerHTML = viewDisciplines();
+  else if(TAB==='dashboard') c.innerHTML = viewDashboard();
+  else if(TAB==='rating') c.innerHTML = viewRating();
+  else if(TAB==='profile') c.innerHTML = viewProfile();
+  if(TAB==='schedule') bindSchedule();
+}
+
+/* ---------- Дашборд ---------- */
+function viewDashboard(){
+  const totalPairs = DB.groups.reduce((a,g)=> a + (g.load||[]).reduce((x,l)=>x+l.pairs,0),0);
+  const conf = detectConflicts();
+  return `
+  <h2 class="section">Панель управления</h2>
+  <p class="hint">Сводка по учебной части. Основной рабочий модуль — «Генератор расписания».</p>
+  <div class="stat">
+    <div class="b"><div class="n">${DB.groups.length}</div><div class="l">Учебных групп</div></div>
+    <div class="b"><div class="n">${DB.teachers.length}</div><div class="l">Преподавателей</div></div>
+    <div class="b"><div class="n">${DB.disciplines.length}</div><div class="l">Дисциплин</div></div>
+    <div class="b"><div class="n">${totalPairs}</div><div class="l">Пар в неделю (нагрузка)</div></div>
+    <div class="b"><div class="n">${DB.placements.length}</div><div class="l">Пар в расписании</div></div>
+    <div class="b ${Object.keys(conf).length?'warnbox':''}"><div class="n">${Object.keys(conf).length}</div><div class="l">Коллизий</div></div>
+  </div>
+  <div class="card"><div class="head"><h3>Быстрый переход</h3></div><div class="body row">
+    <button class="btn primary" onclick="setTab('schedule')">🗓 Открыть генератор расписания</button>
+    <button class="btn" onclick="setTab('teachers')">Окна доступности преподавателей</button>
+    <button class="btn" onclick="setTab('groups')">Нагрузка групп</button>
+  </div></div>`;
+}
+
+/* ---------- База рейтинга (заглушка модуля) ---------- */
+function viewRating(){
+  return `<div class="card"><div class="body placeholder">
+    <div class="big">Модуль «База рейтинга»</div>
+    Массовый ввод баллов (посещаемость / КР / ДЗ), генератор ведомостей и реестр пересдач.<br>
+    В рамках текущей задачи реализован интеллектуальный модуль <b>«Генератор расписания»</b>.
+  </div></div>`;
+}
+
+/* ---------- ПРОФИЛЬ ЗАМА ---------- */
+function viewProfile(){
+  const u = currentUser();
+  const accRows = DB.users.map(x=>`<tr>
+      <td><b>${x.name}</b>${x.id===u.id?' <span class="chip blue">вы</span>':''}</td>
+      <td><code style="background:#f2f4f8;padding:1px 6px;border-radius:4px">${x.login}</code></td>
+      <td>${x.role}</td>
+      <td>${x.active?'<span class="chip" style="background:var(--soft);border-color:#b6e6c4;color:#14663a">активен</span>':'<span class="chip" style="background:var(--hard);border-color:#f3bcbc;color:#9b1c1c">заблокирован</span>'}</td>
+      <td class="row" style="gap:6px">
+        ${x.id!==u.id?`<button class="btn sm" onclick="toggleUser('${x.id}')">${x.active?'Заблокировать':'Разблокировать'}</button>
+        <button class="btn sm danger" onclick="delUser('${x.id}')">Удалить</button>`:'<small class="mut">текущая сессия</small>'}
+      </td></tr>`).join('');
+
+  const logRows = (DB.auditLog||[]).slice(0,60).map(l=>`<tr>
+      <td><small class="mut">${new Date(l.ts).toLocaleString('ru-RU')}</small></td>
+      <td>${l.user} <small class="mut">(${l.login})</small></td>
+      <td>${l.action}</td></tr>`).join('') || '<tr><td colspan="3" class="empty">Журнал пуст</td></tr>';
+
+  return `
+  <h2 class="section">Профиль: ${u.name}</h2>
+  <p class="hint">Настройки аккаунта Заместителя, смена пароля и выход. Ниже — управление учётными записями (создаются только для Замов) и журнал действий для исключения подлога данных.</p>
+
+  <div class="card"><div class="head"><h3>Мой аккаунт</h3></div><div class="body">
+    <div class="grid3">
+      <div class="field"><label>ФИО</label><input id="pName" value="${escapeAttr(u.name)}"></div>
+      <div class="field"><label>Логин</label><input value="${u.login}" disabled></div>
+      <div class="field"><label>Роль</label><input value="${u.role}" disabled></div>
+    </div>
+    <div class="row"><button class="btn primary" onclick="saveProfileName()">Сохранить ФИО</button>
+      <button class="btn" onclick="openChangePass()">Сменить пароль</button>
+      <div class="spacer"></div>
+      <button class="btn danger" onclick="logout()">Выйти из системы</button></div>
+  </div></div>
+
+  <div class="card"><div class="head"><h3>Учётные записи Замов</h3><div class="spacer"></div>
+    <button class="btn primary" onclick="openNewUser()">+ Создать учётку</button></div>
+    <table><thead><tr><th>ФИО</th><th>Логин</th><th>Роль</th><th>Статус</th><th></th></tr></thead>
+    <tbody>${accRows}</tbody></table></div>
+
+  <div class="card"><div class="head"><h3>Журнал действий (логирование)</h3><div class="spacer"></div>
+    <button class="btn sm danger" onclick="clearLog()">Очистить журнал</button></div>
+    <table><thead><tr><th style="width:180px">Дата и время</th><th style="width:240px">Пользователь</th><th>Действие</th></tr></thead>
+    <tbody>${logRows}</tbody></table></div>`;
+}
+function saveProfileName(){
+  const v=document.getElementById('pName').value.trim(); if(!v){toast('Укажите ФИО');return;}
+  currentUser().name=v; logAction('Изменение ФИО в профиле'); save(); renderUserBadge(); render(); toast('Сохранено');
+}
+function openChangePass(){
+  document.getElementById('mTitle').textContent='Смена пароля';
+  document.getElementById('mBody').innerHTML=`
+    <div class="field"><label>Текущий пароль</label><input id="cpOld" type="password"></div>
+    <div class="field"><label>Новый пароль (мин. 4 символа)</label><input id="cpNew" type="password"></div>
+    <div class="field"><label>Повторите новый пароль</label><input id="cpNew2" type="password"></div>`;
+  document.getElementById('mFoot').innerHTML=`<button class="btn ghost" onclick="closeModal()">Отмена</button><button class="btn primary" onclick="changePass()">Изменить</button>`;
+  openModal();
+}
+function changePass(){
+  const u=currentUser();
+  const o=document.getElementById('cpOld').value, n=document.getElementById('cpNew').value, n2=document.getElementById('cpNew2').value;
+  if(u.pass!==hashPass(o)){ toast('Текущий пароль неверен'); return; }
+  if(n.length<4){ toast('Пароль слишком короткий'); return; }
+  if(n!==n2){ toast('Пароли не совпадают'); return; }
+  u.pass=hashPass(n); logAction('Смена пароля'); save(); closeModal(); toast('Пароль изменён');
+}
+function openNewUser(){
+  document.getElementById('mTitle').textContent='Новая учётная запись';
+  document.getElementById('mBody').innerHTML=`
+    <div class="grid2">
+      <div class="field"><label>ФИО</label><input id="nuName" placeholder="Иванов И.И."></div>
+      <div class="field"><label>Логин</label><input id="nuLogin" placeholder="ivanov"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Роль</label><select id="nuRole"><option>Заместитель</option><option>Ст. заместитель</option></select></div>
+      <div class="field"><label>Пароль</label><input id="nuPass" type="password" placeholder="мин. 4 символа"></div>
+    </div>`;
+  document.getElementById('mFoot').innerHTML=`<button class="btn ghost" onclick="closeModal()">Отмена</button><button class="btn primary" onclick="createUser()">Создать</button>`;
+  openModal();
+}
+function createUser(){
+  const name=document.getElementById('nuName').value.trim();
+  const login=document.getElementById('nuLogin').value.trim().toLowerCase();
+  const role=document.getElementById('nuRole').value;
+  const pass=document.getElementById('nuPass').value;
+  if(!name||!login){ toast('Заполните ФИО и логин'); return; }
+  if(DB.users.some(u=>u.login===login)){ toast('Логин уже занят'); return; }
+  if(pass.length<4){ toast('Пароль слишком короткий'); return; }
+  DB.users.push({id:uid(),login,name,role,pass:hashPass(pass),active:true});
+  logAction('Создана учётная запись: '+login); save(); closeModal(); render(); toast('Учётка создана');
+}
+function toggleUser(id){ const u=DB.users.find(x=>x.id===id); u.active=!u.active; logAction((u.active?'Разблокирован':'Заблокирован')+' пользователь: '+u.login); save(); render(); }
+function delUser(id){
+  if(DB.users.filter(u=>u.active).length<=1){ toast('Нельзя удалить последнюю учётку'); return; }
+  const u=DB.users.find(x=>x.id===id);
+  if(!confirm('Удалить учётную запись '+u.login+'?')) return;
+  DB.users=DB.users.filter(x=>x.id!==id); logAction('Удалена учётная запись: '+u.login); save(); render();
+}
+function clearLog(){ if(confirm('Очистить журнал действий?')){ DB.auditLog=[]; save(); render(); } }
+
+/* ---------- ГЕНЕРАТОР РАСПИСАНИЯ ---------- */
+function viewSchedule(){
+  if(DB.groups.length===0) return `<div class="card"><div class="body empty">Нет групп. Добавьте группы и нагрузку в разделе «Группы и нагрузка».</div></div>`;
+  if(!currentGroupView || !G(currentGroupView)) currentGroupView = DB.groups[0].id;
+
+  const conf = detectConflicts();
+  const confCount = Object.keys(conf).length;
+  const groupOpts = DB.groups.map(g=>`<option value="${g.id}" ${g.id===currentGroupView?'selected':''}>${g.name}</option>`).join('');
+  const periodOpts = ['Неделя','Модуль','Семестр'].map(p=>`<option ${DB.period===p?'selected':''}>${p}</option>`).join('');
+
+  let banner='';
+  if(DB.placements.length===0){
+    banner = `<div class="banner ok">Нажмите «Сгенерировать автоматически» — алгоритм распределит пары с учётом окон доступности преподавателей.</div>`;
+  } else if(confCount>0){
+    banner = `<div class="banner err">⚠ Обнаружено коллизий: <b>${confCount}</b>. Проблемные пары подсвечены. Исправьте перетаскиванием.</div>`;
+  } else {
+    banner = `<div class="banner ok">✔ Расписание согласовано, коллизий нет. Окна (разрывы): <b>${totalGaps(DB.placements)}</b>.</div>`;
+  }
+
+  return `
+  <h2 class="section">Интеллектуальный модуль составления расписания</h2>
+  <p class="hint">Алгоритм случайно распределяет пары в пределах доступных окон преподавателей, соблюдая жёсткие ограничения
+   (запрет по матрице доступности, ≤4 пары/день на группу, отсутствие двойной занятости) и стремясь выполнить мягкие
+   (предпочтительные слоты, минимум «окон»). После генерации любую пару можно <b>перетащить</b> вручную — коллизии подсвечиваются автоматически.</p>
+
+  <div class="card"><div class="body">
+    <div class="sched-toolbar">
+      <div class="field" style="margin:0"><label>Период планирования</label>
+        <select id="periodSel" onchange="DB.period=this.value;save()">${periodOpts}</select></div>
+      <div class="field" style="margin:0"><label>Группа (сетка)</label>
+        <select id="groupSel" onchange="currentGroupView=this.value;render()">${groupOpts}</select></div>
+      <div class="spacer"></div>
+      <button class="btn green" onclick="doGenerate()">⚙ Сгенерировать автоматически</button>
+      <button class="btn" onclick="checkNow()">Проверить коллизии</button>
+      <button class="btn danger" onclick="clearSchedule()">Очистить</button>
+    </div>
+    ${banner}
+    <div class="sched-wrap">${renderGrid(currentGroupView, conf)}</div>
+  </div></div>
+
+  ${renderTeacherLoadTable()}
+  `;
+}
+
+function renderGrid(groupId, conf){
+  const cells = {}; // day-slot -> placement
+  DB.placements.filter(p=>p.groupId===groupId).forEach(p=> cells[key(p.day,p.slot)] = p);
+
+  let head = `<tr><th class="timecol">Пара / День</th>` + DAYS.map((d,i)=>`<th>${d}</th>`).join('') + `</tr>`;
+  let rows='';
+  SLOTS.forEach((sl,s)=>{
+    let tds='';
+    for(let d=0; d<DAYS.length; d++){
+      const p = cells[key(d,s)];
+      const t = p ? T(p.teacherId) : null;
+      // подсказка о запрете преподавателя в пустой ячейке не рисуем, только занятые
+      const inner = p ? renderLesson(p, conf[p.id]) : '';
+      tds += `<td><div class="slot" data-day="${d}" data-slot="${s}"
+                   ondragover="onDragOver(event)" ondragleave="onDragLeave(event)"
+                   ondrop="onDrop(event)">${inner}</div></td>`;
+    }
+    rows += `<tr><td class="timecol"><b>${sl.n} пара</b><br><small class="mut">${sl.t}</small></td>${tds}</tr>`;
+  });
+  return `<table class="sched"><thead>${head}</thead><tbody>${rows}</tbody></table>`;
+}
+
+function renderLesson(p, reasons){
+  const d = D(p.disciplineId), t = T(p.teacherId);
+  const bad = reasons && reasons.length;
+  const warn = bad ? `<span class="warn">⚠ ${reasons[0]}</span>` : '';
+  return `<div class="lesson ${bad?'conflict':''}" draggable="true" data-id="${p.id}"
+             style="background:${colorForDiscipline(p.disciplineId)}"
+             ondragstart="onDragStart(event)" title="${bad?reasons.join('; '):''}">
+      <span class="d">${d?d.name:'—'}</span>
+      <span class="ty">${d?d.type:''}</span>
+      <span class="t">${t?t.name:'—'}</span>${warn}
+    </div>`;
+}
+
+function renderTeacherLoadTable(){
+  const rows = DB.teachers.map(t=>{
+    const cnt = DB.placements.filter(p=>p.teacherId===t.id).length;
+    const gaps = teacherGaps(t.id);
+    return `<tr><td><b>${t.name}</b></td><td><span class="chip violet">${t.program}</span></td>
+      <td>${cnt} пар</td><td>${gaps}</td><td><small class="mut">${t.notes||'—'}</small></td></tr>`;
+  }).join('');
+  return `<div class="card"><div class="head"><h3>Загруженность преподавателей (текущее расписание)</h3></div>
+    <table><thead><tr><th>Преподаватель</th><th>Программа</th><th>Пар в неделю</th><th>Окна</th><th>Примечание</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>`;
+}
+function teacherGaps(tid){
+  const byDay={};
+  DB.placements.filter(p=>p.teacherId===tid).forEach(p=> (byDay[p.day] ||= []).push(p.slot));
+  let g=0; for(const d in byDay){ const a=byDay[d]; if(a.length>1) g+=(Math.max(...a)-Math.min(...a)+1)-a.length; }
+  return g;
+}
+
+/* ---- действия расписания ---- */
+function doGenerate(){
+  const res = generateSchedule();
+  if(res.empty){ toast('Сначала задайте нагрузку групп в разделе «Группы и нагрузка»'); return; }
+  DB.placements = res.placements;
+  logAction(`Автогенерация расписания (${res.placements.length} пар)`);
+  save(); render();
+  if(res.unplaced.length>0){
+    toast(`Готово. Не удалось разместить пар: ${res.unplaced.length} (нет свободных окон)`);
+  } else {
+    toast(`Расписание построено. Пар: ${res.placements.length}, окон: ${res.gaps}`);
+  }
+}
+function clearSchedule(){ if(!DB.placements.length) return; if(confirm('Очистить всё расписание?')){ DB.placements=[]; save(); render(); } }
+function checkNow(){ const c=detectConflicts(); render(); toast(Object.keys(c).length? `Коллизий: ${Object.keys(c).length}`:'Коллизий не найдено'); }
+
+/* ---- drag & drop ---- */
+let dragId = null;
+function bindSchedule(){ /* обработчики навешаны инлайн */ }
+function onDragStart(e){ dragId = e.target.dataset.id; e.dataTransfer.effectAllowed='move'; e.dataTransfer.setData('text/plain',dragId); }
+function onDragOver(e){ e.preventDefault(); e.currentTarget.classList.add('dragover'); }
+function onDragLeave(e){ e.currentTarget.classList.remove('dragover'); }
+function onDrop(e){
+  e.preventDefault(); e.currentTarget.classList.remove('dragover');
+  const day = +e.currentTarget.dataset.day, slot = +e.currentTarget.dataset.slot;
+  const p = DB.placements.find(x=>x.id===dragId);
+  if(!p) return;
+  // если в целевой ячейке уже есть пара этой же группы — меняем местами
+  const target = DB.placements.find(x=>x.groupId===p.groupId && x.day===day && x.slot===slot && x.id!==p.id);
+  if(target){ target.day=p.day; target.slot=p.slot; }
+  p.day=day; p.slot=slot;
+  const dd=D(p.disciplineId), gg=G(p.groupId);
+  logAction(`Перенос пары «${dd?dd.name:''}» (${gg?gg.name:''}) → ${DAYS_SHORT[day]}, ${slot+1} пара`);
+  save(); render();
+  const c = detectConflicts();
+  if(c[p.id]) toast('⚠ Перемещение вызвало коллизию: '+c[p.id][0]);
+}
+
+/* ---------- ПРЕПОДАВАТЕЛИ + матрица доступности ---------- */
+function viewTeachers(){
+  const rows = DB.teachers.map(t=>{
+    const blocked = t.avail.flat().filter(v=>v===2).length;
+    const pref = t.avail.flat().filter(v=>v===1).length;
+    return `<tr>
+      <td><b>${t.name}</b></td>
+      <td><span class="chip violet">${t.program}</span></td>
+      <td><small class="mut">${t.notes||'—'}</small></td>
+      <td><span class="chip" style="background:var(--hard);border-color:#f3bcbc;color:#9b1c1c">${blocked} запретов</span>
+          <span class="chip" style="background:var(--soft);border-color:#b6e6c4;color:#14663a">${pref} предпочт.</span></td>
+      <td class="row" style="gap:6px">
+        <button class="btn sm" onclick="openTeacher('${t.id}')">Матрица доступности</button>
+        <button class="btn sm danger" onclick="delTeacher('${t.id}')">Удалить</button></td>
+    </tr>`;
+  }).join('');
+  return `
+  <h2 class="section">Справочник преподавателей</h2>
+  <p class="hint">ФИО, направление программы (РПО/КГИД) и индивидуальные окна доступности. Матрица доступности (дни × пары)
+   задаёт <b>жёсткие</b> запреты (алгоритм исключает эти слоты) и <b>мягкие</b> предпочтения (алгоритм заполняет их в первую очередь).</p>
+  <div class="card">
+    <div class="head"><h3>Преподаватели</h3><div class="spacer"></div><button class="btn primary" onclick="openTeacher()">+ Добавить</button></div>
+    <table><thead><tr><th>ФИО</th><th>Программа</th><th>Примечание</th><th>Ограничения</th><th></th></tr></thead>
+    <tbody>${rows||'<tr><td colspan="5" class="empty">Нет преподавателей</td></tr>'}</tbody></table>
+  </div>`;
+}
+
+let editTeacher = null;
+function openTeacher(id){
+  editTeacher = id ? JSON.parse(JSON.stringify(T(id))) : {id:uid(), name:'', program:'РПО', notes:'', avail:DAYS.map(()=>SLOTS.map(()=>0))};
+  document.getElementById('mTitle').textContent = id?'Карточка преподавателя':'Новый преподаватель';
+  document.getElementById('mBody').innerHTML = `
+    <div class="grid2">
+      <div class="field"><label>ФИО</label><input id="tName" value="${escapeAttr(editTeacher.name)}" placeholder="Асанов А.А."></div>
+      <div class="field"><label>Направление программы</label>
+        <select id="tProg"><option ${editTeacher.program==='РПО'?'selected':''}>РПО</option><option ${editTeacher.program==='КГИД'?'selected':''}>КГИД</option></select></div>
+    </div>
+    <div class="field"><label>Примечание (пожелания)</label><input id="tNotes" value="${escapeAttr(editTeacher.notes)}" placeholder="напр.: все дни, кроме пятницы"></div>
+    <div class="field"><label>Матрица доступности — клик по ячейке меняет статус</label></div>
+    ${renderMatrix(editTeacher.avail)}
+    <div class="legend">
+      <span><span class="sw" style="background:#fff"></span> Доступен (нейтрально)</span>
+      <span><span class="sw" style="background:var(--soft);border-color:var(--soft-b)"></span> Предпочтение (мягкое)</span>
+      <span><span class="sw" style="background:var(--hard);border-color:var(--hard-b)"></span> Запрет (жёсткое)</span>
+    </div>`;
+  document.getElementById('mFoot').innerHTML =
+    `<button class="btn ghost" onclick="closeModal()">Отмена</button><button class="btn primary" onclick="saveTeacher()">Сохранить</button>`;
+  openModal();
+}
+function renderMatrix(avail){
+  let head = `<tr><th>Пара \\ День</th>`+DAYS_SHORT.map(d=>`<th>${d}</th>`).join('')+`</tr>`;
+  let rows='';
+  SLOTS.forEach((sl,s)=>{
+    let tds='';
+    for(let d=0; d<DAYS.length; d++){
+      const v = avail[d][s];
+      const cls = v===2?'hard':v===1?'soft':'neutral';
+      const lbl = v===2?'✕':v===1?'★':'·';
+      tds += `<td class="cell ${cls}" data-d="${d}" data-s="${s}" onclick="cycleCell(this)">${lbl}</td>`;
+    }
+    rows += `<tr><th>${sl.n} пара</th>${tds}</tr>`;
+  });
+  return `<table class="matrix">${head}${rows}</table>`;
+}
+function cycleCell(td){
+  const d=+td.dataset.d, s=+td.dataset.s;
+  editTeacher.avail[d][s] = (editTeacher.avail[d][s]+1)%3;
+  const v=editTeacher.avail[d][s];
+  td.className = 'cell '+(v===2?'hard':v===1?'soft':'neutral');
+  td.textContent = v===2?'✕':v===1?'★':'·';
+}
+function saveTeacher(){
+  editTeacher.name = document.getElementById('tName').value.trim();
+  editTeacher.program = document.getElementById('tProg').value;
+  editTeacher.notes = document.getElementById('tNotes').value.trim();
+  if(!editTeacher.name){ toast('Укажите ФИО'); return; }
+  const i = DB.teachers.findIndex(t=>t.id===editTeacher.id);
+  if(i>=0) DB.teachers[i]=editTeacher; else DB.teachers.push(editTeacher);
+  logAction((i>=0?'Изменён':'Добавлен')+' преподаватель: '+editTeacher.name);
+  save(); closeModal(); render(); toast('Сохранено');
+}
+function delTeacher(id){
+  const used = DB.disciplines.some(d=>d.teacherIds.includes(id)) || DB.groups.some(g=>(g.load||[]).some(l=>l.teacherId===id));
+  if(used){ if(!confirm('Преподаватель используется в дисциплинах/нагрузке. Всё равно удалить?')) return; }
+  DB.teachers = DB.teachers.filter(t=>t.id!==id);
+  save(); render();
+}
+
+/* ---------- ДИСЦИПЛИНЫ ---------- */
+function viewDisciplines(){
+  const rows = DB.disciplines.map(d=>{
+    const ts = d.teacherIds.map(id=>{const t=T(id);return t?`<span class="chip">${t.name}</span>`:''}).join('');
+    const tag = d.type==='Лекция'?'lec':'prac';
+    return `<tr><td><b>${d.name}</b></td><td><span class="tag ${tag}">${d.type}</span></td>
+      <td>${d.hours} ч</td><td>${ts||'<small class="mut">не назначен</small>'}</td>
+      <td class="row" style="gap:6px"><button class="btn sm" onclick="openDisc('${d.id}')">Изменить</button>
+      <button class="btn sm danger" onclick="delDisc('${d.id}')">Удалить</button></td></tr>`;
+  }).join('');
+  return `
+  <h2 class="section">Справочник дисциплин</h2>
+  <p class="hint">Название, тип (лекция/практика), количество академических часов по учебному плану и связка «дисциплина — преподаватель(и)».</p>
+  <div class="card"><div class="head"><h3>Дисциплины</h3><div class="spacer"></div>
+    <button class="btn primary" onclick="openDisc()">+ Добавить</button></div>
+    <table><thead><tr><th>Название</th><th>Тип</th><th>Часы</th><th>Преподаватели</th><th></th></tr></thead>
+    <tbody>${rows||'<tr><td colspan="5" class="empty">Нет дисциплин</td></tr>'}</tbody></table></div>`;
+}
+let editDisc=null;
+function openDisc(id){
+  editDisc = id ? JSON.parse(JSON.stringify(D(id))) : {id:uid(),name:'',type:'Лекция',hours:36,teacherIds:[]};
+  document.getElementById('mTitle').textContent = id?'Дисциплина':'Новая дисциплина';
+  const checks = DB.teachers.map(t=>`<label class="chip" style="cursor:pointer"><input type="checkbox" value="${t.id}" ${editDisc.teacherIds.includes(t.id)?'checked':''}> ${t.name}</label>`).join(' ');
+  document.getElementById('mBody').innerHTML=`
+    <div class="field"><label>Название</label><input id="dName" value="${escapeAttr(editDisc.name)}"></div>
+    <div class="grid2">
+      <div class="field"><label>Тип</label><select id="dType"><option ${editDisc.type==='Лекция'?'selected':''}>Лекция</option><option ${editDisc.type==='Практика'?'selected':''}>Практика</option></select></div>
+      <div class="field"><label>Академических часов</label><input id="dHours" type="number" min="0" value="${editDisc.hours}"></div>
+    </div>
+    <div class="field"><label>Преподаватели (связка)</label><div id="dTeachers">${checks||'<small class="mut">Сначала добавьте преподавателей</small>'}</div></div>`;
+  document.getElementById('mFoot').innerHTML=`<button class="btn ghost" onclick="closeModal()">Отмена</button><button class="btn primary" onclick="saveDisc()">Сохранить</button>`;
+  openModal();
+}
+function saveDisc(){
+  editDisc.name=document.getElementById('dName').value.trim();
+  editDisc.type=document.getElementById('dType').value;
+  editDisc.hours=+document.getElementById('dHours').value||0;
+  editDisc.teacherIds=[...document.querySelectorAll('#dTeachers input:checked')].map(c=>c.value);
+  if(!editDisc.name){ toast('Укажите название'); return; }
+  const i=DB.disciplines.findIndex(d=>d.id===editDisc.id);
+  if(i>=0) DB.disciplines[i]=editDisc; else DB.disciplines.push(editDisc);
+  logAction((i>=0?'Изменена':'Добавлена')+' дисциплина: '+editDisc.name);
+  save(); closeModal(); render(); toast('Сохранено');
+}
+function delDisc(id){
+  const used = DB.groups.some(g=>(g.load||[]).some(l=>l.disciplineId===id));
+  if(used){ if(!confirm('Дисциплина используется в нагрузке групп. Удалить?')) return; }
+  DB.disciplines=DB.disciplines.filter(d=>d.id!==id);
+  DB.groups.forEach(g=> g.load=(g.load||[]).filter(l=>l.disciplineId!==id));
+  save(); render();
+}
+
+/* ---------- ГРУППЫ + НАГРУЗКА ---------- */
+function viewGroups(){
+  const rows = DB.groups.map(g=>{
+    const pairs=(g.load||[]).reduce((a,l)=>a+l.pairs,0);
+    const load=(g.load||[]).map(l=>{const d=D(l.disciplineId),t=T(l.teacherId);return `<span class="chip blue">${d?d.name:'?'} · ${l.pairs}п · ${t?t.name:'?'}</span>`}).join(' ');
+    return `<tr><td><b>${g.name}</b></td><td>${g.course} курс</td><td>${(g.students||[]).length} студ.</td>
+      <td>${pairs} пар/нед</td><td>${load||'<small class="mut">нагрузка не задана</small>'}</td>
+      <td class="row" style="gap:6px"><button class="btn sm" onclick="openGroup('${g.id}')">Изменить</button>
+      <button class="btn sm danger" onclick="delGroup('${g.id}')">Удалить</button></td></tr>`;
+  }).join('');
+  return `
+  <h2 class="section">Группы и учебная нагрузка</h2>
+  <p class="hint">Наименование, курс, список студентов и нагрузка: какие дисциплины, у какого преподавателя и сколько пар в неделю.
+   Именно нагрузка передаётся в алгоритм генерации расписания.</p>
+  <div class="card"><div class="head"><h3>Учебные группы</h3><div class="spacer"></div>
+    <button class="btn primary" onclick="openGroup()">+ Добавить</button></div>
+    <table><thead><tr><th>Группа</th><th>Курс</th><th>Студенты</th><th>Нагрузка</th><th>Состав нагрузки</th><th></th></tr></thead>
+    <tbody>${rows||'<tr><td colspan="6" class="empty">Нет групп</td></tr>'}</tbody></table></div>`;
+}
+let editGroup=null;
+function openGroup(id){
+  editGroup = id ? JSON.parse(JSON.stringify(G(id))) : {id:uid(),name:'',course:1,students:[],load:[]};
+  editGroup.load ||= [];
+  document.getElementById('mTitle').textContent = id?'Учебная группа':'Новая группа';
+  renderGroupModal();
+  document.getElementById('mFoot').innerHTML=`<button class="btn ghost" onclick="closeModal()">Отмена</button><button class="btn primary" onclick="saveGroup()">Сохранить</button>`;
+  openModal();
+}
+function renderGroupModal(){
+  const loadRows = editGroup.load.map((l,i)=>{
+    const d=D(l.disciplineId);
+    const teacherOpts = (d?d.teacherIds:DB.teachers.map(t=>t.id)).map(tid=>{const t=T(tid);return `<option value="${tid}" ${l.teacherId===tid?'selected':''}>${t?t.name:''}</option>`}).join('');
+    const discOpts = DB.disciplines.map(dd=>`<option value="${dd.id}" ${l.disciplineId===dd.id?'selected':''}>${dd.name}</option>`).join('');
+    return `<tr>
+      <td><select onchange="setLoad(${i},'disciplineId',this.value)" style="width:100%;padding:6px;border:1px solid var(--line-strong);border-radius:6px">${discOpts}</select></td>
+      <td><select onchange="setLoad(${i},'teacherId',this.value)" style="width:100%;padding:6px;border:1px solid var(--line-strong);border-radius:6px">${teacherOpts}</select></td>
+      <td><input type="number" min="1" max="10" value="${l.pairs}" onchange="setLoad(${i},'pairs',+this.value)" style="width:64px;padding:6px;border:1px solid var(--line-strong);border-radius:6px"></td>
+      <td><button class="btn sm danger" onclick="rmLoad(${i})">✕</button></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('mBody').innerHTML=`
+    <div class="grid3">
+      <div class="field"><label>Наименование</label><input id="gName" value="${escapeAttr(editGroup.name)}" placeholder="РПО-21"></div>
+      <div class="field"><label>Курс</label><input id="gCourse" type="number" min="1" max="6" value="${editGroup.course}"></div>
+      <div class="field"><label>Студентов</label><input id="gCount" value="${(editGroup.students||[]).length}" disabled></div>
+    </div>
+    <div class="field"><label>Список студентов (по одному в строке)</label>
+      <textarea id="gStudents" rows="3">${(editGroup.students||[]).join('\n')}</textarea></div>
+    <div class="field"><label>Учебная нагрузка</label>
+      <table style="border:1px solid var(--line);border-radius:8px;overflow:hidden">
+        <thead><tr><th>Дисциплина</th><th>Преподаватель</th><th>Пар/нед</th><th></th></tr></thead>
+        <tbody>${loadRows||'<tr><td colspan="4" class="empty">Нагрузка не задана</td></tr>'}</tbody></table>
+      <button class="btn sm" style="margin-top:8px" onclick="addLoad()">+ Добавить дисциплину</button></div>`;
+}
+function addLoad(){
+  syncGroupFields();
+  if(!DB.disciplines.length){ toast('Сначала создайте дисциплины'); return; }
+  const d = DB.disciplines[0];
+  editGroup.load.push({disciplineId:d.id, teacherId:(d.teacherIds[0]||DB.teachers[0]?.id||''), pairs:1});
+  renderGroupModal();
+}
+function setLoad(i,field,val){
+  syncGroupFields();
+  editGroup.load[i][field]=val;
+  if(field==='disciplineId'){ const d=D(val); if(d && !d.teacherIds.includes(editGroup.load[i].teacherId)) editGroup.load[i].teacherId = d.teacherIds[0]||editGroup.load[i].teacherId; }
+  renderGroupModal();
+}
+function rmLoad(i){ syncGroupFields(); editGroup.load.splice(i,1); renderGroupModal(); }
+function syncGroupFields(){
+  const n=document.getElementById('gName'); if(!n) return;
+  editGroup.name=n.value.trim();
+  editGroup.course=+document.getElementById('gCourse').value||1;
+  editGroup.students=document.getElementById('gStudents').value.split('\n').map(s=>s.trim()).filter(Boolean);
+}
+function saveGroup(){
+  syncGroupFields();
+  if(!editGroup.name){ toast('Укажите наименование'); return; }
+  const i=DB.groups.findIndex(g=>g.id===editGroup.id);
+  if(i>=0) DB.groups[i]=editGroup; else DB.groups.push(editGroup);
+  logAction((i>=0?'Изменена':'Добавлена')+' группа: '+editGroup.name);
+  save(); closeModal(); render(); toast('Сохранено');
+}
+function delGroup(id){
+  if(!confirm('Удалить группу и её пары из расписания?')) return;
+  DB.groups=DB.groups.filter(g=>g.id!==id);
+  DB.placements=DB.placements.filter(p=>p.groupId!==id);
+  if(currentGroupView===id) currentGroupView=DB.groups[0]?.id||null;
+  save(); render();
+}
+
+/* ---------- Общие ---------- */
+function openModal(){ document.getElementById('modalBg').classList.add('open'); }
+function closeModal(){ document.getElementById('modalBg').classList.remove('open'); }
+document.getElementById('modalBg').addEventListener('mousedown', e=>{ if(e.target.id==='modalBg') closeModal(); });
+function escapeAttr(s){ return (s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+let toastTimer=null;
+function toast(msg){ const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),2600); }
+
+/* Глобальный поиск */
+document.getElementById('globalSearch').addEventListener('input', e=>{
+  const q=e.target.value.trim().toLowerCase(); if(q.length<2) return;
+  const inT=DB.teachers.some(t=>t.name.toLowerCase().includes(q));
+  const inG=DB.groups.some(g=>g.name.toLowerCase().includes(q));
+  const inD=DB.disciplines.some(d=>d.name.toLowerCase().includes(q));
+  if(inG&&TAB!=='groups') setTab('groups');
+  else if(inT&&TAB!=='teachers') setTab('teachers');
+  else if(inD&&TAB!=='disciplines') setTab('disciplines');
+});
+
+/* Навигация */
+document.getElementById('nav').addEventListener('click', e=>{ const b=e.target.closest('button'); if(b) setTab(b.dataset.tab); });
+
+/* ---- Обработчики входа ---- */
+function doLogin(){
+  const err=document.getElementById('loginErr');
+  const r=tryLogin(document.getElementById('loginUser').value, document.getElementById('loginPass').value);
+  if(!r.ok){ err.textContent=r.msg; err.classList.add('show'); return; }
+  err.classList.remove('show'); enterApp();
+}
+document.getElementById('loginBtn').addEventListener('click', doLogin);
+['loginUser','loginPass'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); }));
+document.getElementById('demoNote').innerHTML =
+  'Демо-доступ:<br>Зам — <code>zam</code> / <code>zam123</code><br>Ст. зам — <code>admin</code> / <code>admin123</code>';
+
+/* Старт: проверка активной сессии */
+renderFoot();
+(function boot(){
+  const sid = sessionStorage.getItem(SESSION_KEY);
+  const u = sid && DB.users.find(x=>x.id===sid && x.active);
+  if(u){ CURRENT_USER = u.id; enterApp(); }
+  else { showLogin(); }
+})();
+</script>
+</body>
+</html>
